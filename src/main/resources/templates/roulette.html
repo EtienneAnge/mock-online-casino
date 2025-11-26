@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  
+<style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        #rouletteWrapper {
+            position: relative;
+            width: 300px;  /* AJUSTE LA TAILLE ICI */
+            height: 300px; /* AJUSTE LA TAILLE ICI (garde un carré) */
+            margin-bottom: 30px;
+        }
+
+        #roulettePng {
+            width: 100%;
+            height: 100%;
+            /* S'assure que l'image est parfaitement ronde (si l'image source est carrée) */
+            border-radius: 50%; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); /* Une petite ombre pour le relief */
+
+            transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+
+        /* --- Styles du Bouton --- */
+        #spinButton {
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            background-color: #e74c3c; /* Rouge casino */
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px #c0392b; /* Effet 3D du bouton */
+            transition: all 0.1s;
+        }
+
+        #spinButton:hover {
+            background-color: #ff5e57;
+            margin-top: -2px;
+            box-shadow: 0 7px #c0392b;
+        }
+
+        #spinButton:active {
+            /* Effet quand on clique */
+            background-color: #c0392b;
+            box-shadow: 0 2px #ab2e1e;
+            transform: translateY(3px);
+        }
+        
+        /* Style quand le bouton est désactivé pendant le tour */
+        #spinButton:disabled {
+            background-color: #95a5a6;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: translateY(3px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        
+        <div id="rouletteWrapper">
+            <img id="roulettePng" 
+                 th:src="@{/img/Casino_Roulette.png}" 
+                 alt="Image de Roulette de Casino">
+        </div>
+
+        <button id="spinButton">TOURNER LA ROUE !</button>
+
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const rouletteImage = document.getElementById('roulettePng');
+            const spinButton = document.getElementById('spinButton');
+            
+            // Variable pour garder en mémoire la rotation actuelle
+            // pour que la roue ne reparte pas de zéro à chaque clic.
+            let currentRotation = 0;
+
+            spinButton.addEventListener('click', () => {
+                // 1. Désactiver le bouton pour éviter le spam-click pendant que ça tourne
+                spinButton.disabled = true;
+                spinButton.textContent = "Ça tourne...";
+
+                // 2. Calculer la nouvelle rotation
+                // On veut faire entre 5 et 10 tours complets (360 * X)
+                const extraSpins = Math.floor(Math.random() * 5) + 5; 
+                // Plus un angle aléatoire final entre 0 et 360 degrés
+                const randomStopAngle = Math.floor(Math.random() * 360);
+                
+                // Le total des degrés à ajouter à la position actuelle
+                const totalDegreesToAdd = (extraSpins * 360) + randomStopAngle;
+                
+                // On met à jour la rotation globale
+                currentRotation += totalDegreesToAdd;
+
+                // 3. Appliquer la rotation via CSS
+                // C'est ici que la magie opère grâce à la propriété 'transition' du CSS
+                rouletteImage.style.transform = `rotate(${currentRotation}deg)`;
+
+                // 4. Réactiver le bouton une fois l'animation terminée
+                // Le temps ici (4000ms = 4s) doit correspondre à la durée de la 'transition' CSS
+                setTimeout(() => {
+                    spinButton.disabled = false;
+                    spinButton.textContent = "TOURNER LA ROUE !";
+                    console.log("La roue s'est arrêtée !");
+                    // Ici, tu pourrais ajouter du code pour calculer le résultat
+                }, 4000); 
+            });
+        });
+    </script>
+</body>
+</html>

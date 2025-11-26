@@ -13,7 +13,6 @@ public class Room {
     private Long idRoom;
 
     private LocalDateTime date; 
-    private String code;
 
     @ManyToOne
     @JoinColumn(name = "idGame", nullable = false)
