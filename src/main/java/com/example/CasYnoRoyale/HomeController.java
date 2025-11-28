@@ -21,13 +21,19 @@ public class HomeController {
         return "index";
     }
 
-    @GetMapping("/login")
+    /*@GetMapping("/login")
     public String login() {
         return "login";
     }
 
     @PostMapping("/login")
-    public String postLogin(@ModelAttribute AppUser formUser)
+    public String postLogin(@ModelAttribute AppUser formUser,
+                            RedirectAttributes model,
+                            HttpServletRequest request) {
 
-
+        AppUSer user = userRepository.findByUsernameAndPassword(
+                formUser.getUsername(),
+                formUser.getPassword()
+        );
+    }*/
 }
