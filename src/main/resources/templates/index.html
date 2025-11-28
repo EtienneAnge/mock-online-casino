@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -92,8 +93,15 @@
         }
 
         @keyframes shine {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.3); }
+
+            0%,
+            100% {
+                filter: brightness(1);
+            }
+
+            50% {
+                filter: brightness(1.3);
+            }
         }
 
         .hero p {
@@ -267,129 +275,124 @@
         }
     </style>
 </head>
+
 <body>
-<header>
-    <div class="logo">♠ CASYNO ROYAL ♥</div>
-    <div class="auth-buttons">
-        <button class="btn btn-login" onclick="openModal('login')">Connexion</button>
-        <button class="btn btn-signup" onclick="openModal('signup')">Inscription</button>
-    </div>
-</header>
+    <header>
+        <div class="logo">♠ CASYNO ROYAL ♥</div>
+        <div class="auth-buttons">
+            <button class="btn btn-login" onclick="window.location.href='/login'">
+                Connexion
+            </button>
+            <button class="btn btn-signup" onclick="openModal('signup')">Inscription</button>
+        </div>
+    </header>
 
-<div class="hero">
-    <h1>Bienvenue au Royal Casino</h1>
-    <p>Vivez l'expérience du casino en ligne avec nos jeux de roulette et blackjack</p>
-</div>
-
-<div class="games-section">
-    <div class="game-card">
-        <div class="game-icon">🎰</div>
-        <h2>Roulette</h2>
-        <p>Tentez votre chance à la roulette européenne. Misez sur vos numéros favoris et regardez la roue tourner !</p>
-        <button class="btn-play" onclick="alert('Connectez-vous pour jouer!')">Jouer maintenant</button>
+    <div class="hero">
+        <h1>Bienvenue au Royal Casino</h1>
+        <p>Vivez l'expérience du casino en ligne avec nos jeux de roulette et blackjack</p>
     </div>
 
-    <div class="game-card">
-        <div class="game-icon">🃏</div>
-        <h2>Blackjack</h2>
-        <p>Affrontez le croupier au blackjack. Obtenez 21 et remportez la mise ! Stratégie et chance au rendez-vous.</p>
-        <button class="btn-play" onclick="alert('Connectez-vous pour jouer!')">Jouer maintenant</button>
+    <div class="games-section">
+        <div class="game-card">
+            <div class="game-icon">🎰</div>
+            <h2>Roulette</h2>
+            <p>Tentez votre chance à la roulette européenne. Misez sur vos numéros favoris et regardez la roue tourner !
+            </p>
+            <button class="btn-play" onclick="alert('Connectez-vous pour jouer!')">Jouer maintenant</button>
+        </div>
+
+        <div class="game-card">
+            <div class="game-icon">🃏</div>
+            <h2>Blackjack</h2>
+            <p>Affrontez le croupier au blackjack. Obtenez 21 et remportez la mise ! Stratégie et chance au rendez-vous.
+            </p>
+            <button class="btn-play" onclick="alert('Connectez-vous pour jouer!')">Jouer maintenant</button>
+        </div>
     </div>
-</div>
 
-<div class="features">
-    <div class="feature">
-        <div class="feature-icon">🔒</div>
-        <h3>Sécurisé</h3>
-        <p>Vos données et transactions sont protégées</p>
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">🔒</div>
+            <h3>Sécurisé</h3>
+            <p>Vos données et transactions sont protégées</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">💰</div>
+            <h3>Bonus généreux</h3>
+            <p>Profitez de bonus de bienvenue attractifs</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <h3>Rapide</h3>
+            <p>Retraits instantanés et jeu fluide</p>
+        </div>
     </div>
-    <div class="feature">
-        <div class="feature-icon">💰</div>
-        <h3>Bonus généreux</h3>
-        <p>Profitez de bonus de bienvenue attractifs</p>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('login')">&times;</span>
+            <h2>Connexion</h2><a href="/login" class="btn btn-primary btn-lg">Connexion</a>
+        </div>
     </div>
-    <div class="feature">
-        <div class="feature-icon">⚡</div>
-        <h3>Rapide</h3>
-        <p>Retraits instantanés et jeu fluide</p>
+
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('signup')">&times;</span>
+            <h2>Inscription</h2>
+            <form onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label for="signupName">Nom</label>
+                    <input type="text" id="signupName" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Mot de passe</label>
+                    <input type="password" id="signupPassword" required>
+                </div>
+                <button type="submit" class="btn btn-signup" style="width: 100%;">S'inscrire</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<div id="loginModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeModal('login')">&times;</span>
-        <h2>Connexion</h2>
-        <form onsubmit="handleLogin(event)">
-            <div class="form-group">
-                <label for="loginEmail">Email</label>
-                <input type="email" id="loginEmail" required>
-            </div>
-            <div class="form-group">
-                <label for="loginPassword">Mot de passe</label>
-                <input type="password" id="loginPassword" required>
-            </div>
-            <button type="submit" class="btn btn-signup" style="width: 100%;">Se connecter</button>
-        </form>
-    </div>
-</div>
+    <footer>
+        <p>&copy; 2025 CasYno Royal. Jouez de manière responsable. +18 ans.</p>
+        <p>Avertissement : Ce site est une démonstration. Les jeux d'argent peuvent créer une dépendance.</p>
+    </footer>
 
-<div id="signupModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeModal('signup')">&times;</span>
-        <h2>Inscription</h2>
-        <form onsubmit="handleSignup(event)">
-            <div class="form-group">
-                <label for="signupName">Nom</label>
-                <input type="text" id="signupName" required>
-            </div>
-            <div class="form-group">
-                <label for="signupEmail">Email</label>
-                <input type="email" id="signupEmail" required>
-            </div>
-            <div class="form-group">
-                <label for="signupPassword">Mot de passe</label>
-                <input type="password" id="signupPassword" required>
-            </div>
-            <button type="submit" class="btn btn-signup" style="width: 100%;">S'inscrire</button>
-        </form>
-    </div>
-</div>
-
-<footer>
-    <p>&copy; 2025 CasYno Royal. Jouez de manière responsable. +18 ans.</p>
-    <p>Avertissement : Ce site est une démonstration. Les jeux d'argent peuvent créer une dépendance.</p>
-</footer>
-
-<script>
-    function openModal(type) {
-        const modal = document.getElementById(type + 'Modal');
-        modal.style.display = 'flex';
-    }
-
-    function closeModal(type) {
-        const modal = document.getElementById(type + 'Modal');
-        modal.style.display = 'none';
-    }
-
-    function handleLogin(e) {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        alert('Connexion réussie pour ' + email + '!');
-        closeModal('login');
-    }
-
-    function handleSignup(e) {
-        e.preventDefault();
-        const name = document.getElementById('signupName').value;
-        alert('Inscription réussie pour ' + name + '! Vous pouvez maintenant vous connecter.');
-        closeModal('signup');
-    }
-
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
+    <script>
+        function openModal(type) {
+            const modal = document.getElementById(type + 'Modal');
+            modal.style.display = 'flex';
         }
-    }
-</script>
+
+        function closeModal(type) {
+            const modal = document.getElementById(type + 'Modal');
+            modal.style.display = 'none';
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            alert('Connexion réussie pour ' + email + '!');
+            closeModal('login');
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            alert('Inscription réussie pour ' + name + '! Vous pouvez maintenant vous connecter.');
+            closeModal('signup');
+        }
+
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
 </body>
+
 </html>
