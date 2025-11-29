@@ -36,13 +36,17 @@ public class RouletteController {
         }else{
            Room room = roomRepository.findById(idRoom)
     .orElseThrow(() -> new NoSuchElementException("Salle non trouvée avec l'ID : " + idRoom));
-
         }
         // le user dois rejoindre la room !! (mathis)
 
-        
-        
         return "roulette";
+    }
+
+    @GetMapping("/rooms")
+    public String roomsPage(Model model){
+        List<Room> rooms = roomRepository.findAll();
+        model.addAttribute("rooms", rooms);
+        return "rooms";
     }
 
 }
