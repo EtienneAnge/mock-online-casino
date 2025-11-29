@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
-import com.example.CasYnoRoyale.database.User;
+import com.example.CasYnoRoyale.database.AppUser;
 
 public class Roulette {
-    ArrayList<User> players  = new ArrayList<User>();
+    ArrayList<AppUser> players  = new ArrayList<AppUser>();
     ArrayList<Integer> tirages = new ArrayList<>();
 
      

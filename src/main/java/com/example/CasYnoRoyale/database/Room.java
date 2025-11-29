@@ -20,7 +20,7 @@ public class Room {
 
     
     @ManyToMany(mappedBy = "rooms")
-    private List<User> users;
+    private List<AppUser> users;
 
     @OneToMany(mappedBy = "room")
     private List<Transaction> transactions;

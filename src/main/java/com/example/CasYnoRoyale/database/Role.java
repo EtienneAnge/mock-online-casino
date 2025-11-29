@@ -16,6 +16,6 @@ public class Role {
     private Integer level;
     private String label;
 
-    @OneToMany(mappedBy = "role")
-    private List<User> users;
+    /*@OneToMany(mappedBy = "role")
+    private List<AppUser> users;*/
 }
