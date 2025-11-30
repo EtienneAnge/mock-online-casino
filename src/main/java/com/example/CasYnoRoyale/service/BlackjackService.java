@@ -53,6 +53,7 @@ public class BlackjackService {
             gameMessage = "Blackjack ! Vous avez gagné !";
         } else if (dealerBJ) {
             gameState = "DEALER_WIN";
+            gameMessage = "Blackjack ! Le croupier gagne !";
         }
     }
 
