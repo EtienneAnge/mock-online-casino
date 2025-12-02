@@ -121,6 +121,8 @@
     </style>
 </head>
 <body>
+    <span th:text="${user.name}">[Placeholder]</span>
+    <span id="mon-solde" th:text="${user.balance}">[Placeholder]</span>
 
 <div class="main-container">
     
@@ -319,7 +321,21 @@
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(currentBets)
-        });
+        }).then(response => response.json()) // On transforme la réponse en objet JS
+    .then(data => {
+        if (data.nouveauSolde !== undefined) {
+            console.log("Mise à jour du solde : " + data.nouveauSolde);
+
+            // C'EST ICI QUE LA MAGIE OPÈRE :
+            // On cherche la balise par son ID et on change son texte
+            document.getElementById("mon-solde").innerText = data.nouveauSolde;
+            
+            alert(data.message); // "Paris acceptés"
+        } else {
+            // Gestion d'erreur si le serveur renvoie un message d'erreur
+            alert("Erreur : " + data.message);
+        }
+    });
         
 
         // Animation de la roue (Simulation)

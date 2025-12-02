@@ -42,18 +42,28 @@ public class Bet {
     
     BetType bt;
 
-    public Bet(User user, BigDecimal betValue, BetType bt,int externValueSelected, ArrayList<Integer> internValuesSelected) {
+    public Bet(User user, BigDecimal betValue, BetType bt,Integer externValueSelected, Integer internValuesSelected) {
         this.user = user;
         this.betValue = betValue;
         this.bt = bt;
         this.externValueSelected = externValueSelected;
-        this.internValuesSelected = internValuesSelected;
+        this.internValuesSelected = new ArrayList<Integer>(internValuesSelected);
 
-        user.decreaseSolde(betValue);
+        try {
+            user.decreaseBalance(betValue);
+        } catch (Exception e) {
+            canceled = true;
+            throw e;
+        }
+        
+    }
+
+    public User getUser(){
+        return user;
     }
 
     public void cancelBet(){
-        user.increaseSolde(betValue);
+        user.increaseBalance(betValue);
         canceled = true;
     }
 
@@ -155,7 +165,7 @@ public class Bet {
     // Méthode helper pour éviter de répéter le code de gain
     private void win(int multiplier) {
         BigDecimal gain = betValue.multiply(BigDecimal.valueOf(multiplier));
-        user.increaseSolde(gain);
+        user.increaseBalance(gain);
    
     }
 }

@@ -20,6 +20,7 @@ public class GameService {
 
     @PostConstruct
     public void initDatabaseOnStartup() {
+        //gameRepository.deleteAll();
         Game bj = new Game();
         blackjack = bj;
         bj.setLabel("BlackJack");

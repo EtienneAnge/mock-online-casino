@@ -42,7 +42,7 @@ public class User {
      * Augmente le balance de l'utilisateur du montant spécifié.
      * @param amount Le montant à ajouter. Doit être positif.
      */
-    public void increasebalance(BigDecimal amount) {
+    public void increaseBalance(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Le montant à ajouter doit être positif.");
         }
@@ -54,7 +54,7 @@ public class User {
      * (Vérification de balance insuffisant incluse)
      * @param amount Le montant à retirer. Doit être positif.
      */
-    public void decreasebalance(BigDecimal amount) {
+    public void decreaseBalance(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Le montant à retirer doit être positif.");
         }

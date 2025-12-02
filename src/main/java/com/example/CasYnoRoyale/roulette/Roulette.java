@@ -4,6 +4,7 @@ package com.example.CasYnoRoyale.roulette;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.example.CasYnoRoyale.database.User;
 
@@ -51,6 +52,21 @@ public class Roulette {
         ZonedDateTime ancienTirage = ZonedDateTime.now();
         prochainTirage = ancienTirage.plusMinutes(1);
     }
+
+    public void betCanceled(User user) {
+    Iterator<Bet> iterator = bets.iterator();
+    
+    while (iterator.hasNext()) {
+        Bet bet = iterator.next();
+        
+        if (bet.getUser().getIdUser().equals(user.getIdUser())) {
+            
+            bet.cancelBet(); 
+            
+            iterator.remove(); 
+        }
+    }
+}
 
 
 }

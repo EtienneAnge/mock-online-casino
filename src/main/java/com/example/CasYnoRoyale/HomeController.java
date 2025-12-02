@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.CasYnoRoyale.repository.UserRepository;
+import com.example.CasYnoRoyale.database.User;
 @Controller
 public class HomeController {
     public String index(HttpServletRequest request, Model model){
@@ -34,7 +35,7 @@ public class HomeController {
                             RedirectAttributes model,
                             HttpServletRequest request,UserRepository userRepository) {
 
-        AppUser user = userRepository.findUserByUsername(
+        User user = userRepository.findUserByUsername(
                 formUser.getUsername()
         );
 
