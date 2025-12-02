@@ -5,6 +5,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.CasYnoRoyale.roulette.Roulette;
+
 @Entity
 @Data
 public class Room {
@@ -24,4 +26,10 @@ public class Room {
 
     @OneToMany(mappedBy = "room")
     private List<Transaction> transactions;
+
+    private Roulette rouletteInstance;
+
+    public Roulette getRoulette(){
+        return rouletteInstance;
+    }
 }

@@ -6,12 +6,21 @@ import com.example.CasYnoRoyale.service.RoomService;
 import com.example.CasYnoRoyale.database.Game;
 import com.example.CasYnoRoyale.repository.GameRepository;
 import com.example.CasYnoRoyale.database.Room;
+import com.example.CasYnoRoyale.database.User;
 import com.example.CasYnoRoyale.repository.RoomRepository;
+import com.example.CasYnoRoyale.roulette.Bet;
+import com.example.CasYnoRoyale.roulette.BetRequest;
+
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -45,4 +54,27 @@ public class RouletteController {
         return "roulette";
     }
 
+    @PostMapping("/api/game/routelle/lockBet")
+    public ResponseEntity<String> lockBets(@RequestBody List<BetRequest> bets,User user,Room room) {
+        
+        if (bets == null || bets.isEmpty()) {
+            return ResponseEntity.badRequest().body("Aucun pari reçu.");
+        }
+
+  
+    
+
+        for (BetRequest bet : bets) {
+            System.out.println("Type: " + bet.getBetType());
+            System.out.println("Valeur: " + bet.getSelectionValue());
+            System.out.println("Montant: " + bet.getAmount());
+            room.getRoulette().betDeposit(new Bet(user, bet.getAmount(), bet.getBetType(), bet.getSelectionValue(), bet.getSelectionValue()));
+            
+            
+        }
+
+        // 3. Réponse au client
+        // On renvoie 200 OK avec un message ou le nouveau solde du joueur
+        return ResponseEntity.ok("Paris enregistrés. Total misé : " + totalBetAmount);
+    }
 }

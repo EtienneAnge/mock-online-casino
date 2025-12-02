@@ -33,4 +33,33 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Transaction> transactions;
+
+
+    /**
+     * Augmente le solde de l'utilisateur du montant spécifié.
+     * @param amount Le montant à ajouter. Doit être positif.
+     */
+    public void increaseSolde(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Le montant à ajouter doit être positif.");
+        }
+        this.solde = this.solde.add(amount);
+    }
+    
+    /**
+     * Réduit le solde de l'utilisateur du montant spécifié.
+     * (Vérification de solde insuffisant incluse)
+     * @param amount Le montant à retirer. Doit être positif.
+     */
+    public void decreaseSolde(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Le montant à retirer doit être positif.");
+        }
+        
+        if (this.solde.compareTo(amount) < 0) {
+             throw new IllegalStateException("Solde insuffisant.");
+        }
+        
+        this.solde = this.solde.subtract(amount);
+    }
 }
