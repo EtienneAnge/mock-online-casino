@@ -2,36 +2,65 @@ package com.example.CasYnoRoyale.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
-
 import com.example.CasYnoRoyale.model.blackjack.Deck;
 import com.example.CasYnoRoyale.model.blackjack.Hand;
 
 @Service
-@SessionScope 
+@SessionScope
 public class BlackjackService {
 
     private Deck deck;
     private Hand playerHand;
     private Hand dealerHand;
 
-    
     private String gameState;
-    private String gameMessage; 
+    private String gameMessage;
+
+    // NOUVEAUX ATTRIBUTS
+    private int balance = 1000; // Solde de départ (exemple)
+    private int currentBet = 0; // Mise de la manche en cours
 
     public BlackjackService() {
         this.playerHand = new Hand();
         this.dealerHand = new Hand();
-        this.deck = new Deck(); 
-        startNewGame();
+        this.deck = new Deck();
+        // Au démarrage, on demande de miser
+        resetToBettingPhase();
     }
 
+    // 1. Initialise la phase de pari (ne distribue PAS encore les cartes)
     public void startNewGame() {
+        resetToBettingPhase();
+    }
+
+    private void resetToBettingPhase() {
+        gameState = "BETTING";
+        gameMessage = "Veuillez placer votre mise pour commencer.";
+        currentBet = 0;
         playerHand.clear();
         dealerHand.clear();
-        if(deck == null) { deck = new Deck(); }
+    }
+
+    // 2. Méthode appelée quand le joueur valide sa mise
+    public void placeBet(int amount) {
+        if (amount <= 0 || amount > balance) {
+            gameMessage = "Mise invalide (Solde insuffisant ou montant nul).";
+            return;
+        }
+
+        this.currentBet = amount;
+        this.balance -= amount; // On déduit la mise tout de suite
+        
+        // On lance la distribution
+        dealInitialCards();
+    }
+
+    // Anciennement startNewGame, maintenant privé et appelé après la mise
+    private void dealInitialCards() {
+        if(deck == null) { deck = new Deck(); } // Sécurité deck vide
 
         gameState = "ONGOING";
-        gameMessage = "Votre tour. Voulez-vous tirer ou rester ?";
+        gameMessage = "Mise de " + currentBet + "€. Votre tour.";
 
         playerHand.addCard(deck.drawCard());
         dealerHand.addCard(deck.drawCard());
@@ -46,25 +75,20 @@ public class BlackjackService {
         boolean dealerBJ = dealerHand.isBlackjack();
 
         if (playerBJ && dealerBJ) {
-            gameState = "PUSH";
-            gameMessage = "Double Blackjack ! Égalité.";
+            processEndGame("PUSH", "Double Blackjack ! Égalité.", 1.0);
         } else if (playerBJ) {
-            gameState = "PLAYER_WIN";
-            gameMessage = "Blackjack ! Vous avez gagné !";
+            // Blackjack paie 3 pour 2 (2.5x la mise totale récupérée)
+            processEndGame("PLAYER_WIN", "Blackjack ! Vous gagnez 1.5x la mise !", 2.5);
         } else if (dealerBJ) {
-            gameState = "DEALER_WIN";
-            gameMessage = "Blackjack ! Le croupier gagne !";
+            processEndGame("DEALER_WIN", "Blackjack du croupier ! Vous perdez.", 0);
         }
     }
 
     public void playerHit() {
         if (!gameState.equals("ONGOING")) return;
-
         playerHand.addCard(deck.drawCard());
-
         if (playerHand.isBusted()) {
-            gameState = "DEALER_WIN";
-            gameMessage = "Vous avez dépassé 21 (Bust) ! Le croupier gagne.";
+            processEndGame("DEALER_WIN", "Vous avez sauté (Bust) !", 0);
         }
     }
 
@@ -85,23 +109,34 @@ public class BlackjackService {
         int dealerScore = dealerHand.calculateScore();
 
         if (dealerHand.isBusted()) {
-            gameState = "PLAYER_WIN";
-            gameMessage = "Le croupier a dépassé 21 ! Vous avez gagné.";
+            processEndGame("PLAYER_WIN", "Croupier saute ! Vous gagnez.", 2.0);
         } else if (dealerScore > playerScore) {
-            gameState = "DEALER_WIN";
-            gameMessage = "Le croupier a un meilleur score. Vous avez perdu.";
+            processEndGame("DEALER_WIN", "Le croupier gagne.", 0);
         } else if (playerScore > dealerScore) {
-            gameState = "PLAYER_WIN";
-            gameMessage = "Vous avez un meilleur score ! Vous avez gagné.";
+            processEndGame("PLAYER_WIN", "Vous gagnez !", 2.0);
         } else {
-            gameState = "PUSH";
-            gameMessage = "Égalité (Push).";
+            processEndGame("PUSH", "Égalité (Push). Mise remboursée.", 1.0);
         }
     }
 
+    // Gestion centralisée de la fin de partie et des gains
+    private void processEndGame(String state, String message, double payoutMultiplier) {
+        gameState = state;
+        gameMessage = message;
+        
+        if (payoutMultiplier > 0) {
+            int gain = (int) (currentBet * payoutMultiplier);
+            this.balance += gain;
+        }
+    }
+
+    // Getters pour la vue
     public Hand getPlayerHand() { return playerHand; }
     public Hand getDealerHand() { return dealerHand; }
     public String getGameState() { return gameState; }
     public String getGameMessage() { return gameMessage; }
     public boolean isGameOngoing() { return "ONGOING".equals(gameState); }
+    public boolean isBettingPhase() { return "BETTING".equals(gameState); } // Pour afficher le formulaire
+    public int getBalance() { return balance; }
+    public int getCurrentBet() { return currentBet; }
 }

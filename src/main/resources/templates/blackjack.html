@@ -1,74 +1,136 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>CasYno Royale - Blackjack</title>
-    <style>
-        body { font-family: sans-serif; background-color: #2e7d32; color: white; text-align: center; }
-        .game-area { margin: 20px auto; max-width: 800px; padding: 20px; background-color: rgba(0,0,0,0.2); border-radius: 10px; }
-        .hand { display: flex; justify-content: center; margin-bottom: 10px; }
-        .card-img { width: 100px; height: 145px; margin: 5px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
-        .score { font-size: 1.2em; font-weight: bold; margin-bottom: 20px; }
-        .message-box { background-color: #fdd835; color: black; padding: 15px; border-radius: 5px; margin: 20px 0; font-size: 1.2em; }
-        .actions button { padding: 10px 20px; font-size: 1em; margin: 5px; cursor: pointer; }
-        .btn-hit { background-color: #4caf50; color: white; border: none; }
-        .btn-stand { background-color: #f44336; color: white; border: none; }
-        .btn-new { background-color: #2196f3; color: white; border: none; }
-    </style>
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <title>CasYno Royale - Blackjack</title>
+        <style>
+            body { font-family: 'Segoe UI', sans-serif; background-color: #2e7d32; color: white; text-align: center; margin: 0; padding: 20px; }
+            
+            /* Zone d'infos (Solde) */
+            .info-bar {
+                background-color: #1b5e20;
+                padding: 15px;
+                border-radius: 8px;
+                display: inline-block;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                font-size: 1.2em;
+            }
+            .balance-amount { color: #ffd700; font-weight: bold; }
 
-    <h1>Blackjack Table</h1>
+            /* Zone de jeu */
+            .game-area { margin: 20px auto; max-width: 900px; padding: 30px; background-color: rgba(0,0,0,0.25); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+            
+            /* Cartes */
+            .hand { display: flex; justify-content: center; margin-bottom: 15px; min-height: 150px; }
+            .card-img { width: 110px; height: 160px; margin: 0 5px; border-radius: 8px; box-shadow: 3px 3px 8px rgba(0,0,0,0.4); transition: transform 0.2s; }
+            .card-img:hover { transform: translateY(-5px); }
 
-    <div class="message-box" th:text="${bjService.gameMessage}">Message du jeu</div>
+            /* Messages */
+            .score { font-size: 1.3em; font-weight: bold; margin-bottom: 10px; color: #e0e0e0; }
+            .message-box { background-color: #fdd835; color: #333; padding: 15px; border-radius: 8px; margin: 20px auto; max-width: 600px; font-size: 1.2em; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-    <div class="game-area">
-        <h2>Croupier</h2>
-        <div class="hand">
-            <div th:each="card, iterStat : ${bjService.dealerHand.cards}">
-                <img th:if="${bjService.isGameOngoing() and iterStat.index == 1}"
-                     th:src="@{img/card/back.png}"
-                     class="card-img" alt="Carte cachée">
+            /* Boutons */
+            .actions button { padding: 12px 25px; font-size: 1.1em; margin: 10px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; transition: background 0.3s; }
+            .btn-hit { background-color: #4caf50; color: white; }
+            .btn-hit:hover { background-color: #43a047; }
+            
+            .btn-stand { background-color: #f44336; color: white; }
+            .btn-stand:hover { background-color: #e53935; }
+            
+            .btn-new { background-color: #2196f3; color: white; }
+            .btn-new:hover { background-color: #1e88e5; }
+            
+            .btn-bet { background-color: #ffb300; color: black; }
+            .btn-bet:hover { background-color: #ffa000; }
 
-                <img th:unless="${bjService.isGameOngoing() and iterStat.index == 1}"
-                     th:src="@{'/img/card/' + ${card.imagePath}}"
-                     class="card-img" th:alt="${card.toString()}">
+            input[type="number"] { padding: 10px; font-size: 1.1em; border-radius: 5px; border: none; width: 100px; text-align: center; }
+        </style>
+    </head>
+    <body>
+
+        <h1>♠️ Blackjack Table ♦️</h1>
+
+        <div class="info-bar">
+            Solde : <span class="balance-amount" th:text="${bjService.balance}">1000</span> €
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            Mise en jeu : <span th:text="${bjService.currentBet}">0</span> €
+        </div>
+
+        <div class="message-box" th:text="${bjService.gameMessage}">Bienvenue</div>
+
+
+        <div th:if="${bjService.isBettingPhase()}" class="game-area">
+            <h2>Placez votre mise pour commencer</h2>
+            <p>Combien voulez-vous parier sur cette main ?</p>
+            
+            <form action="#" th:action="@{/blackjack/bet}" method="post">
+                <input type="number" name="amount" min="1" th:max="${bjService.balance}" value="" required>
+                <button type="submit" class="btn-bet">Miser et Distribuer</button>
+            </form>
+            
+            <p th:if="${bjService.balance <= 0}" style="color: #ff8a80; margin-top: 15px;">
+                ⚠️ Vous êtes ruiné !
+            </p>
+        </div>
+
+
+        <div th:unless="${bjService.isBettingPhase()}" class="game-area">
+            
+            <h2>Croupier</h2>
+            <div class="hand">
+                <div th:each="card, iterStat : ${bjService.dealerHand.cards}">
+                    <img th:if="${bjService.isGameOngoing() and iterStat.index == 1}"
+                        th:src="@{/img/card/back.png}"
+                        class="card-img" alt="Dos de carte">
+
+                    <img th:unless="${bjService.isGameOngoing() and iterStat.index == 1}"
+                        th:src="@{'/img/card/' + ${card.imagePath}}"
+                        class="card-img" th:alt="${card.toString()}">
+                </div>
             </div>
+            
+            <div class="score">
+                Score : 
+                <span th:if="${bjService.isGameOngoing()}">?</span>
+                <span th:unless="${bjService.isGameOngoing()}" th:text="${bjService.dealerHand.calculateScore()}">0</span>
+            </div>
+
+
+            <hr style="border-color: rgba(255,255,255,0.1); width: 80%; margin: 25px auto;">
+
+
+            <h2>Votre Main</h2>
+            <div class="hand">
+                <img th:each="card : ${bjService.playerHand.cards}"
+                    th:src="@{'/img/card/' + ${card.imagePath}}"
+                    class="card-img" th:alt="${card.toString()}">
+            </div>
+            <div class="score">
+                Score : <span th:text="${bjService.playerHand.calculateScore()}">0</span>
+            </div>
+
+
+            <div class="actions">
+                <div th:if="${bjService.isGameOngoing()}">
+                    <form th:action="@{/blackjack/hit}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-hit">Tirer (Hit)</button>
+                    </form>
+                    <form th:action="@{/blackjack/stand}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-stand">Rester (Stand)</button>
+                    </form>
+                </div>
+
+                <div th:unless="${bjService.isGameOngoing()}">
+                    <form th:action="@{/blackjack/newgame}" method="post">
+                        <button type="submit" class="btn-new">Nouvelle Manche</button>
+                    </form>
+                </div>
+            </div>
+
         </div>
-        <div class="score" th:if="${!bjService.isGameOngoing()}">
-            Score: <span th:text="${bjService.dealerHand.calculateScore()}">0</span>
-        </div>
 
+        <p><a href="/" style="color: #a5d6a7; text-decoration: none;">↩ Retour à l'accueil</a></p>
 
-        <hr style="border-color: rgba(255,255,255,0.3);">
-
-
-        <h2>Votre Main</h2>
-        <div class="hand">
-            <img th:each="card : ${bjService.playerHand.cards}"
-                 th:src="@{'/img/card/' + ${card.imagePath}}"
-                 class="card-img" th:alt="${card.toString()}">
-        </div>
-        <div class="score">
-            Score: <span th:text="${bjService.playerHand.calculateScore()}">0</span>
-        </div>
-
-
-        <div class="actions">
-            <form th:if="${bjService.isGameOngoing()}" action="#" th:action="@{/blackjack/hit}" method="post" style="display:inline;">
-                <button type="submit" class="btn-hit">Tirer (Hit)</button>
-            </form>
-            <form th:if="${bjService.isGameOngoing()}" action="#" th:action="@{/blackjack/stand}" method="post" style="display:inline;">
-                <button type="submit" class="btn-stand">Rester (Stand)</button>
-            </form>
-
-            <form th:if="${!bjService.isGameOngoing()}" action="#" th:action="@{/blackjack/newgame}" method="post">
-                <button type="submit" class="btn-new">Nouvelle Partie</button>
-            </form>
-        </div>
-
-    </div>
-    <p><a href="/" style="color:white;">Retour à l'accueil</a></p>
-
-</body>
+    </body>
 </html>

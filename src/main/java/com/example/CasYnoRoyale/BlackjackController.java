@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.CasYnoRoyale.service.BlackjackService;
 
@@ -41,6 +42,12 @@ public class BlackjackController {
     @PostMapping("/newgame")
     public String newGame() {
         blackjackService.startNewGame();
+        return "redirect:/blackjack";
+    }
+
+    @PostMapping("/bet")
+    public String placeBet(@RequestParam int amount) {
+        blackjackService.placeBet(amount);
         return "redirect:/blackjack";
     }
 }
