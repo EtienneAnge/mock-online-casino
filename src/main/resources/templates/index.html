@@ -279,7 +279,14 @@
 <body>
     <header>
         <div class="logo">♠ CASYNO ROYAL ♥</div>
-        <div class="auth-buttons">
+
+        <div class="auth-buttons" th:if="${session.user}">
+            <button type="submit" class="btn btn-logout" onclick="window.location.href='/logout'">
+                Déconnexion
+            </button>
+        </div>
+
+        <div class="auth-buttons" th:unless="${session.user}">
             <button class="btn btn-login" onclick="window.location.href='/login'">
                 Connexion
             </button>
@@ -290,6 +297,7 @@
     </header>
 
     <div class="hero">
+        <div class="alert alert-info" th:if="${message}" th:text="${message}"></div>
         <h1>Bienvenue au Royal Casino</h1>
         <p>Vivez l'expérience du casino en ligne avec nos jeux de roulette et blackjack</p>
     </div>

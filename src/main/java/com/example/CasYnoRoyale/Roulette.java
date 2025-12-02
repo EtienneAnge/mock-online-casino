@@ -19,7 +19,7 @@ public class Roulette {
     }
 
     public int getLastTirage(){
-        return tirages.getLast();
+        return tirages.get(tirages.size() - 1);
 
     }
 

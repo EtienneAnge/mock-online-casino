@@ -14,9 +14,10 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #fff;
             min-height: 100vh;
-            display: flex; /* Utilise flexbox pour centrer le contenu */
-            justify-content: center;
-            align-items: center;
+            display: flex;
+            flex-direction: column; /* AJOUT CLÉ : Empile les éléments verticalement */
+            justify-content: center; /* Centre verticalement si possible */
+            align-items: center; /* Centre horizontalement (l'axe transversal) */
             margin: 0;
         }
 
@@ -28,11 +29,13 @@
             align-items: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            position: fixed; /* Pour que le header reste en haut */
+            /* Header fixe */
+            position: fixed;
             width: 100%;
             top: 0;
             left: 0;
             z-index: 1000;
+            height: 80px;
         }
 
         .logo {
@@ -57,8 +60,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
+            text-decoration: none; /* Important pour les liens <a> */
+            display: inline-block;
         }
 
+        /* Bouton Login (Style contour ici car inactif) */
         .btn-login {
             background: transparent;
             border: 2px solid #ffd700;
@@ -72,26 +78,28 @@
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
         }
 
+        /* Bouton Signup (Style plein ici car page active) */
         .btn-signup {
             background: linear-gradient(45deg, #ffd700, #ffed4e);
             color: #1a1a2e;
-        }
-
-        .btn-signup:hover {
-            transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
         }
 
-        /* Styles spécifiques au formulaire d'inscription */
+        /* Conteneur du formulaire */
         .signup-container {
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             padding: 3rem;
             border-radius: 20px;
             border: 2px solid #ffd700;
-            max-width: 450px; /* Légèrement plus large pour les champs */
+            max-width: 450px;
             width: 90%;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            margin-top: 80px; /* Pour laisser de la place au header fixe */
+            
+            /* CENTRAGE */
+            margin: auto; 
+            margin-top: 40px; /* Un peu d'air par rapport au header si l'écran est petit */
+            margin-bottom: 40px;
+            margin: auto; 
         }
 
         .signup-container h2 {
@@ -100,13 +108,11 @@
             text-align: center;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
+        .form-label {
             color: #ccc;
         }
 
-        .form-control { /* Utilisation de la classe Bootstrap pour les inputs */
+        .form-control {
             width: 100%;
             padding: 0.8rem;
             border: 2px solid rgba(255, 215, 0, 0.3);
@@ -119,7 +125,9 @@
         .form-control:focus {
             outline: none;
             border-color: #ffd700;
-            box-shadow: 0 0 0 0.25rem rgba(255, 215, 0, 0.25); /* Effet focus Bootstrap */
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            box-shadow: 0 0 0 0.25rem rgba(255, 215, 0, 0.25);
         }
 
         .btn-submit {
@@ -139,7 +147,7 @@
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
         }
 
-        .alert { /* Styles pour les messages d'erreur/succès de Thymeleaf */
+        .alert {
             padding: 1rem;
             border-radius: 10px;
             margin-bottom: 1.5rem;
@@ -148,20 +156,22 @@
         }
 
         .alert-danger {
-            background-color: #dc3545; /* Rouge Bootstrap */
+            background-color: rgba(220, 53, 69, 0.9);
             color: white;
+            border: 1px solid #dc3545;
         }
 
         .alert-success {
-            background-color: #28a745; /* Vert Bootstrap */
+            background-color: rgba(40, 167, 69, 0.9);
             color: white;
+            border: 1px solid #28a745;
         }
 
         footer {
             text-align: center;
             padding: 2rem;
             background: rgba(0, 0, 0, 0.5);
-            margin-top: auto; /* Pour pousser le footer en bas */
+            margin-top: auto; /* Pousse le footer tout en bas */
             color: #888;
             width: 100%;
         }

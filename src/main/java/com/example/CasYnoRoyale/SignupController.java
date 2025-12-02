@@ -1,9 +1,6 @@
 package com.example.CasYnoRoyale;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,23 +8,21 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
+import com.example.CasYnoRoyale.repository.RoleRepository;
 import com.example.CasYnoRoyale.repository.UserRepository;
 import com.example.CasYnoRoyale.database.AppUser;
+import com.example.CasYnoRoyale.database.Role;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class SignupController {
 
-    private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
-    public SignupController(UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    @Autowired
+    RoleRepository roleRepository;
 
     @GetMapping("/signup")
     public String signup(Model model) { 
@@ -40,11 +35,11 @@ public class SignupController {
     @PostMapping("/signup")
     public String postSignup(@ModelAttribute AppUser formUser,
             RedirectAttributes model,
-            HttpServletRequest request) {
+            HttpSession session) {
 
         //Verification qu'il n'y ait pas de doublon
         //Recuperation de l'utilisateur avec le nom fourni
-        AppUser existingUser = userRepository.findUserByUsername(formUser.getUsername());
+        AppUser existingUser = userRepository.findByUsername(formUser.getUsername());
 
         //L'utilisateur est recherché en bdd via son nom
         if (existingUser != null) {
@@ -52,27 +47,30 @@ public class SignupController {
             return "redirect:/signup";
         }
 
-        String hashedPassword = passwordEncoder.encode(formUser.getPassword());
-        formUser.setPassword(hashedPassword);
+        Role defaultRole = roleRepository.findByLabel("ROLE_USER"); 
 
+        if (defaultRole == null) {
+            System.out.println("ERREUR CRITIQUE: Le rôle 'ROLE_USER' n'est pas initialisé en base de données.");
+            model.addFlashAttribute("error", "Erreur serveur: Rôle par défaut manquant.");
+            return "redirect:/signup";
+        }
+
+        // Assigner le rôle trouvé à l'utilisateur
+        formUser.setRole(defaultRole);
+
+        formUser.setBalance(java.math.BigDecimal.ZERO); // Initialiser le solde à 0
+        formUser.setPassword(formUser.getPassword()); // mot de passe de l'utilisateur
+        formUser.setName(formUser.getName()); //Nom de l'utilisateur
+
+        //SAUVEGARDE EN BASE DE DONNÉES
         AppUser savedUser = userRepository.save(formUser);
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-            savedUser.getUsername(), 
-            //savedUser.getPassword(),
-            null,
-            savedUser.getAuthorities()
-        );
+        // CONNEXION MANUELLE (Crée la session HTTP simple)
+        session.setAttribute("user", savedUser); 
 
-        // Lier le jeton à la requête actuelle
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-        // Placer le jeton dans le contexte de sécurité (authentification réussie)
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // --- FIN AUTO-CONNEXION ---
-
-        model.addFlashAttribute("message", "Bienvenue " + savedUser.getUsername() + ", votre compte est prêt !");
-        return "redirect:/"; // Redirection vers la page d'accueil
+        model.addFlashAttribute("message", "Bienvenue " + savedUser.getUsername() + " !");
+        
+        // Redirection vers l'accueil après auto-connexion
+        return "redirect:/"; 
     }
-}
+} 
