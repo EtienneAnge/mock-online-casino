@@ -9,6 +9,8 @@ import com.example.CasYnoRoyale.database.Room;
 import com.example.CasYnoRoyale.database.User;
 import com.example.CasYnoRoyale.repository.RoomRepository;
 import com.example.CasYnoRoyale.roulette.Bet;
+import com.example.CasYnoRoyale.roulette.Roulette;
+
 import com.example.CasYnoRoyale.roulette.BetRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -30,12 +33,17 @@ public class RouletteController {
     private final RoomService roomService;
     private final GameRepository gameRepository;
     private final GameService gameService;
+    private HashMap<Long,Roulette> idTRoulette = new HashMap();
 
     public RouletteController(RoomRepository roomRepository, RoomService roomService, GameRepository gameRepository, GameService gameService){
         this.roomRepository =  roomRepository;
         this.roomService = roomService;
         this.gameRepository = gameRepository;
         this.gameService = gameService;
+    }
+
+    public Roulette getRoulette(Long id){
+        return idTRoulette.get(id);
     }
     
     @GetMapping("/games/roulette")

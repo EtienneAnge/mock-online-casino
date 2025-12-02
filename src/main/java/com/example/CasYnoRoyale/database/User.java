@@ -15,8 +15,11 @@ public class User {
     private Long idUser;
 
     private String name;
+    
+    @Column(name = "username", unique = true)
     private String username;
-    private BigDecimal solde;
+    private String password;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @ManyToOne
     @JoinColumn(name = "idRoles", nullable = false)
@@ -36,30 +39,58 @@ public class User {
 
 
     /**
-     * Augmente le solde de l'utilisateur du montant spécifié.
+     * Augmente le balance de l'utilisateur du montant spécifié.
      * @param amount Le montant à ajouter. Doit être positif.
      */
-    public void increaseSolde(BigDecimal amount) {
+    public void increasebalance(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Le montant à ajouter doit être positif.");
         }
-        this.solde = this.solde.add(amount);
+        this.balance = this.balance.add(amount);
     }
     
     /**
-     * Réduit le solde de l'utilisateur du montant spécifié.
-     * (Vérification de solde insuffisant incluse)
+     * Réduit le balance de l'utilisateur du montant spécifié.
+     * (Vérification de balance insuffisant incluse)
      * @param amount Le montant à retirer. Doit être positif.
      */
-    public void decreaseSolde(BigDecimal amount) {
+    public void decreasebalance(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Le montant à retirer doit être positif.");
         }
         
-        if (this.solde.compareTo(amount) < 0) {
-             throw new IllegalStateException("Solde insuffisant.");
+        if (this.balance.compareTo(amount) < 0) {
+             throw new IllegalStateException("balance insuffisant.");
         }
         
-        this.solde = this.solde.subtract(amount);
+        this.balance = this.balance.subtract(amount);
     }
+
+    public String getName(){
+        return this.name;
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
+
+    public String getUsername(){
+        return this.username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword(){
+        return this.password;
+    }
+
+    public void setPassword(String password){
+        this.password = password;
+    }
+
+
+
+
 }
