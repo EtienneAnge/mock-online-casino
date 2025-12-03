@@ -1,6 +1,8 @@
 package com.example.CasYnoRoyale;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,4 +25,17 @@ public class HomeController {
         return "index";
     }
 
+    //logout
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+
+    //error
+    @GetMapping("/error")
+    public String error(HttpSession session) {
+        session.invalidate();
+        return "error";
+    }
 }

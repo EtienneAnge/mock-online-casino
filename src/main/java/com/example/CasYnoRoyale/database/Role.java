@@ -4,6 +4,8 @@ package com.example.CasYnoRoyale.database;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+
 import java.util.List;
 
 @Entity
@@ -16,6 +18,7 @@ public class Role {
     private Integer level;
     private String label;
 
-    /*@OneToMany(mappedBy = "role")
-    private List<AppUser> users;*/
+    @OneToMany(mappedBy = "role")
+    @ToString.Exclude
+    private List<AppUser> users;
 }

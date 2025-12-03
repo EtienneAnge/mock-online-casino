@@ -1,65 +1,102 @@
 package com.example.CasYnoRoyale.database;
 
+
 import jakarta.persistence.*;
 import lombok.Data;
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.List;
+import lombok.ToString;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Data
 @Table(name = "Users")
-public class AppUser implements UserDetails {
+public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUser;
 
     private String name;
+    
+    @Column(name = "username", unique = true)
     private String username;
     private String password;
     private BigDecimal balance = BigDecimal.ZERO;
 
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "idRoles", nullable = false)
-    private Role role;*/
+    private Role role;
 
-   // @Column(nullable = false)
-    private String role = "ROLE_USER";
-
+  
     @ManyToMany
-    @JoinTable(name = "UsersRooms", joinColumns = @JoinColumn(name = "idUser"), inverseJoinColumns = @JoinColumn(name = "idRoom"))
-    private List<Room> rooms;
+    @JoinTable(
+        name = "UsersRooms",                         
+        joinColumns = @JoinColumn(name = "idUser"),  
+        inverseJoinColumns = @JoinColumn(name = "idRoom") 
+    )
+    private List<Room> rooms; 
 
     @OneToMany(mappedBy = "user")
     private List<Transaction> transactions;
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    public String toString(){
+        return null;
     }
 
-    // Dans AppUser.java, tu dois ajouter :
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
+    /**
+     * Augmente le balance de l'utilisateur du montant spécifié.
+     * @param amount Le montant à ajouter. Doit être positif.
+     */
+    public void increaseBalance(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Le montant à ajouter doit être positif.");
+        }
+        this.balance = this.balance.add(amount);
+    }
+    
+    /**
+     * Réduit le balance de l'utilisateur du montant spécifié.
+     * (Vérification de balance insuffisant incluse)
+     * @param amount Le montant à retirer. Doit être positif.
+     */
+    public void decreaseBalance(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Le montant à retirer doit être positif.");
+        }
+        
+        if (this.balance.compareTo(amount) < 0) {
+             throw new IllegalStateException("balance insuffisant.");
+        }
+        
+        this.balance = this.balance.subtract(amount);
     }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
+    public String getName(){
+        return this.name;
     }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
+    public void setName(String name){
+        this.name = name;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public String getUsername(){
+        return this.username;
     }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword(){
+        return this.password;
+    }
+
+    public void setPassword(String password){
+        this.password = password;
+    }
+
+
+
+
 }

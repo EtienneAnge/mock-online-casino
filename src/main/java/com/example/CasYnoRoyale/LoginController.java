@@ -1,28 +1,21 @@
 package com.example.CasYnoRoyale;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.example.CasYnoRoyale.repository.AppUserRepository;
+import jakarta.servlet.http.HttpSession;
 
-import com.example.CasYnoRoyale.repository.UserRepository;
-
-import jakarta.servlet.http.HttpServletRequest;
 import com.example.CasYnoRoyale.database.AppUser;
 
 @Controller
 public class LoginController {
 
-    private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
-
-    public LoginController(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    @Autowired
+    AppUserRepository userRepository;
 
     @GetMapping("/login")
     public String login() {
@@ -32,9 +25,9 @@ public class LoginController {
     @PostMapping("/login")
     public String postLogin(@ModelAttribute AppUser formUser,
                             RedirectAttributes model,
-                            HttpServletRequest request) {
+                            HttpSession session) {
 
-        AppUser user = userRepository.findUserByUsername(
+        AppUser user = userRepository.findByUsername(
                 formUser.getUsername()
         );
 
@@ -44,14 +37,16 @@ public class LoginController {
             return "redirect:/login";
         }
 
-        if (passwordEncoder.matches(formUser.getPassword(), user.getPassword())){
-            request.getSession().setAttribute("user", user);
+
+        System.out.println(formUser.getPassword());
+        System.out.println(user.getPassword());
+        if (formUser.getPassword().equals(user.getPassword())){
+            session.setAttribute("user", user);
             model.addFlashAttribute("message", "Bienvenue " + user.getUsername());
             return "redirect:/";
         } else {
             model.addFlashAttribute("error", "Nom d'utilisateur ou mdp invalide");
             return "redirect:/login";
         }
-
     }
 }

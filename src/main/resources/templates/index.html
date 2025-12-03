@@ -76,6 +76,22 @@
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
         }
 
+        .btn-myaccount {
+            background: transparent;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-myaccount:hover {
+            background: #ffd700;
+            color: #1a1a2e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
         .hero {
             text-align: center;
             padding: 4rem 2rem;
@@ -279,7 +295,17 @@
 <body>
     <header>
         <div class="logo">♠ CASYNO ROYAL ♥</div>
-        <div class="auth-buttons">
+
+        <div class="auth-buttons" th:if="${session.user}">
+            <button type="submit" class="btn btn-myaccount" onclick="window.location.href='/myaccount'">
+                <span>👤</span> Mon Compte
+            </button>
+            <button type="submit" class="btn btn-logout" onclick="window.location.href='/logout'">
+                Déconnexion
+            </button>
+        </div>
+
+        <div class="auth-buttons" th:unless="${session.user}">
             <button class="btn btn-login" onclick="window.location.href='/login'">
                 Connexion
             </button>
@@ -290,6 +316,7 @@
     </header>
 
     <div class="hero">
+        <div class="alert alert-info" th:if="${message}" th:text="${message}"></div>
         <h1>Bienvenue au Royal Casino</h1>
         <p>Vivez l'expérience du casino en ligne avec nos jeux de roulette et blackjack</p>
     </div>
@@ -300,7 +327,7 @@
             <h2>Roulette</h2>
             <p>Tentez votre chance à la roulette européenne. Misez sur vos numéros favoris et regardez la roue tourner !
             </p>
-            <button class="btn-play" onclick="alert('Connectez-vous pour jouer!')">Jouer maintenant</button>
+            <button class="btn-play" onclick="window.location.href = '/games/roulette';" >Jouer maintenant</button>
         </div>
 
         <div class="game-card">

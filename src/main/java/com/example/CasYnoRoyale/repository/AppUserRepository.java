@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.example.CasYnoRoyale.database.AppUser;
 
 @Repository
-public interface UserRepository extends JpaRepository<AppUser, Long> {
+public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
-    AppUser findUserByUsername(String username);
+    AppUser findByUsername(String username);
 }
