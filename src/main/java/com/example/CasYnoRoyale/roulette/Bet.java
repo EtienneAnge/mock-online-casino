@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.example.CasYnoRoyale.database.User;
+import com.example.CasYnoRoyale.database.AppUser;
 
 public class Bet {
 
@@ -30,7 +30,7 @@ public class Bet {
         1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36
     );
 
-    User user;
+    AppUser user;
     BigDecimal betValue;
     boolean canceled = false;
     
@@ -42,7 +42,7 @@ public class Bet {
     
     BetType bt;
 
-    public Bet(User user, BigDecimal betValue, BetType bt,Integer externValueSelected, Integer internValuesSelected) {
+    public Bet(AppUser user, BigDecimal betValue, BetType bt,Integer externValueSelected, Integer internValuesSelected) {
         this.user = user;
         this.betValue = betValue;
         this.bt = bt;
@@ -58,7 +58,7 @@ public class Bet {
         
     }
 
-    public User getUser(){
+    public AppUser getUser(){
         return user;
     }
 

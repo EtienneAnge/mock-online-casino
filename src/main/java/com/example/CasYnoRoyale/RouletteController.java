@@ -8,9 +8,9 @@ import com.example.CasYnoRoyale.database.Game;
 import com.example.CasYnoRoyale.repository.GameRepository;
 import com.example.CasYnoRoyale.service.GameService;
 import com.example.CasYnoRoyale.database.Room;
-import com.example.CasYnoRoyale.database.User;
+import com.example.CasYnoRoyale.database.AppUser;
 import com.example.CasYnoRoyale.repository.RoomRepository;
-import com.example.CasYnoRoyale.repository.UserRepository;
+import com.example.CasYnoRoyale.repository.AppUserRepository;
 import com.example.CasYnoRoyale.roulette.Bet;
 import com.example.CasYnoRoyale.roulette.Roulette;
 
@@ -24,7 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import com.example.CasYnoRoyale.service.UserService;
+import com.example.CasYnoRoyale.service.AppUserService;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -37,11 +37,11 @@ public class RouletteController {
     private final RoomService roomService;
     private final GameRepository gameRepository;
     private final GameService gameService;
-    private final UserRepository userRepository;
-    private final UserService userService;
+    private final AppUserRepository userRepository;
+    private final AppUserService userService;
     private HashMap<Long,Roulette> idTRoulette = new HashMap();
 
-    public RouletteController(UserService userService, UserRepository userRepository,RoomRepository roomRepository, RoomService roomService, GameRepository gameRepository, GameService gameService){
+    public RouletteController(AppUserService userService, AppUserRepository userRepository,RoomRepository roomRepository, RoomService roomService, GameRepository gameRepository, GameService gameService){
         this.userService= userService;
         this.userRepository = userRepository;
         this.roomRepository =  roomRepository;
@@ -66,7 +66,7 @@ public class RouletteController {
 
     //     }
         // le user dois rejoindre la room !! (mathis)
-        User u = userService.getUserTest();
+        AppUser u = userService.getUserTest();
         if(u == null){
             return "login";
         }
@@ -82,7 +82,7 @@ public class RouletteController {
         
       
   
-    User user = userService.getUserTest();
+    AppUser user = userService.getUserTest();
 
         for (BetRequest bet : bets) {
             System.out.println("Type: " + bet.getBetType());
@@ -104,7 +104,7 @@ public class RouletteController {
 
     @PostMapping("/api/game/routelle/betcanceled")
     public String betCanceled(){
-            User user = userService.getUserTest();
+            AppUser user = userService.getUserTest();
 
         getRoulette(new Long(0)).betCanceled(user);
         userRepository.save(user);

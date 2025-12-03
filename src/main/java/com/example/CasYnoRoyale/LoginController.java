@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import com.example.CasYnoRoyale.repository.UserRepository;
+import com.example.CasYnoRoyale.repository.AppUserRepository;
 import jakarta.servlet.http.HttpSession;
 
 import com.example.CasYnoRoyale.database.AppUser;
@@ -15,7 +15,7 @@ import com.example.CasYnoRoyale.database.AppUser;
 public class LoginController {
 
     @Autowired
-    UserRepository userRepository;
+    AppUserRepository userRepository;
 
     @GetMapping("/login")
     public String login() {

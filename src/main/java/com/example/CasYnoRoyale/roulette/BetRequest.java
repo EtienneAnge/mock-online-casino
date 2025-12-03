@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.example.CasYnoRoyale.database.User;
+import com.example.CasYnoRoyale.database.AppUser;
 public class BetRequest {
     private Bet.BetType betType;       // Mappe "betType"
     private Integer selectionValue; // Mappe "selectionValue"

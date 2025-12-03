@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.example.CasYnoRoyale.database.Role;
 import com.example.CasYnoRoyale.repository.RoleRepository;
-import com.example.CasYnoRoyale.repository.UserRepository;
+import com.example.CasYnoRoyale.repository.AppUserRepository;
 import com.example.CasYnoRoyale.database.AppUser; // Assurez-vous que les imports sont corrects
 
 @Configuration
@@ -17,7 +17,7 @@ public class DataInitializer {
 
     // Cette méthode s'exécute juste après le démarrage du contexte Spring
     @Bean
-    public CommandLineRunner initRoles(RoleRepository roleRepository, UserRepository userRepository) {
+    public CommandLineRunner initRoles(RoleRepository roleRepository, AppUserRepository userRepository) {
 
         // Le corps de la fonction à exécuter au démarrage
         return args -> {

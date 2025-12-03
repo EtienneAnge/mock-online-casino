@@ -3,8 +3,8 @@ package com.example.CasYnoRoyale.service;
 
 import com.example.CasYnoRoyale.database.Role;
 import com.example.CasYnoRoyale.repository.RoleRepository;
-import com.example.CasYnoRoyale.database.User;
-import com.example.CasYnoRoyale.repository.UserRepository;
+import com.example.CasYnoRoyale.database.AppUser;
+import com.example.CasYnoRoyale.repository.AppUserRepository;
 import com.example.CasYnoRoyale.service.RoleService;
 
 
@@ -15,12 +15,12 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService {
-    private final UserRepository userRepository;
+public class AppUserService {
+    private final AppUserRepository userRepository;
     private final RoleRepository roleRepository;
     private final RoleService roleService;
 
-    public UserService(UserRepository userRepository,RoleRepository roleRepository, RoleService roleService){
+    public AppUserService(AppUserRepository userRepository,RoleRepository roleRepository, RoleService roleService){
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.roleService = roleService;
@@ -29,9 +29,9 @@ public class UserService {
 
     @PostConstruct
     public void initTestUser(){
-        User u = userRepository.findByUsername("bernard111");
+        AppUser u = userRepository.findByUsername("bernard111");
         if (u == null) {
-            u = new User();
+            u = new AppUser();
             u.setRole(roleService.getUserRole());
             u.setName("Bernard");
             u.setUsername("bernard111");
@@ -45,7 +45,7 @@ public class UserService {
         userRepository.save(u);
     }
 
-    public User getUserTest(){
+    public AppUser getUserTest(){
         return userRepository.findByUsername("bernard111");
     }
 

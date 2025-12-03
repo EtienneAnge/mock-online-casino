@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.CasYnoRoyale.repository.RoleRepository;
-import com.example.CasYnoRoyale.repository.UserRepository;
+import com.example.CasYnoRoyale.repository.AppUserRepository;
 import com.example.CasYnoRoyale.database.AppUser;
 import com.example.CasYnoRoyale.database.Role;
 
@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpSession;
 public class SignupController {
 
     @Autowired
-    UserRepository userRepository;
+    AppUserRepository userRepository;
 
     @Autowired
     RoleRepository roleRepository;
