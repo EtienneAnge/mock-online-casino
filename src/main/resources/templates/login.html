@@ -177,22 +177,23 @@
     <header>
         <div class="logo">♠ CASYNO ROYAL ♥</div>
         <div class="auth-buttons">
-            <!-- Bouton connexion désactivé car on y est -->
             <button class="btn btn-login" disabled>
                 Connexion
             </button>
-            <button class="btn btn-signup" onclick="window.location.href='/signup'">Inscription</button>
+            <button class="btn btn-signup" onclick="window.location.href='/signup'">
+                Inscription
+            </button>
         </div>
     </header>
 
     <div class="login-container">
         <h2>Bienvenue</h2>
 
-        <div th:if="${param.error}" class="alert alert-danger" role="alert">
+        <div th:if="${error}" class="alert alert-danger" role="alert">
             Nom d'utilisateur ou mot de passe incorrect.
         </div>
 
-        <div th:if="${param.logout}" class="alert alert-success" role="alert">
+        <div th:if="${logout}" class="alert alert-success" role="alert">
             Vous avez été déconnecté avec succès.
         </div>
 

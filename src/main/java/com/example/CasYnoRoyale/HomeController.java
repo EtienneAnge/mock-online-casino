@@ -28,11 +28,17 @@ public class HomeController {
         return "index";
     }
 
-
     //logout
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+
+    //error
+    @GetMapping("/error")
+    public String error(HttpSession session) {
+        session.invalidate();
+        return "error";
     }
 }

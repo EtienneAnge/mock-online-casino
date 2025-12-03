@@ -27,7 +27,6 @@ public class LoginController {
                             RedirectAttributes model,
                             HttpSession session) {
 
-        System.out.println("testt");
         AppUser user = userRepository.findByUsername(
                 formUser.getUsername()
         );
@@ -35,7 +34,6 @@ public class LoginController {
 
         if (user == null) {
             model.addFlashAttribute("error", "Nom d'utilisateur ou mdp invalide");
-            System.out.println("Utilisateur non trouvé : " + formUser.getUsername());
             return "redirect:/login";
         }
 
@@ -43,13 +41,10 @@ public class LoginController {
         System.out.println(formUser.getPassword());
         System.out.println(user.getPassword());
         if (formUser.getPassword().equals(user.getPassword())){
-            System.out.println("ok");
             session.setAttribute("user", user);
             model.addFlashAttribute("message", "Bienvenue " + user.getUsername());
-            System.out.println("Utilisateur connecté : " + user.getUsername());
             return "redirect:/";
         } else {
-            System.out.println("pas ok ");
             model.addFlashAttribute("error", "Nom d'utilisateur ou mdp invalide");
             return "redirect:/login";
         }
