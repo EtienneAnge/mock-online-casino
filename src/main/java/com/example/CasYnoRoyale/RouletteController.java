@@ -13,10 +13,13 @@ import com.example.CasYnoRoyale.repository.RoomRepository;
 import com.example.CasYnoRoyale.repository.AppUserRepository;
 import com.example.CasYnoRoyale.roulette.Bet;
 import com.example.CasYnoRoyale.roulette.Roulette;
+import jakarta.servlet.http.HttpSession;
 
 import com.example.CasYnoRoyale.roulette.BetRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -56,7 +59,7 @@ public class RouletteController {
     }
     
     @GetMapping("/games/roulette")
-    public String roulettePage(Model model){
+    public String roulettePage(Model model, HttpSession session){
         
     //     if(idRoom == null){
     //         Room room = roomService.createNewRoom(gameService.getRoulette());
@@ -66,23 +69,23 @@ public class RouletteController {
 
     //     }
         // le user dois rejoindre la room !! (mathis)
-        AppUser u = userService.getUserTest();
-        if(u == null){
+        AppUser user = (AppUser)session.getAttribute("user");
+        if(user == null){
             return "login";
         }
-        model.addAttribute("user",u);
-         System.out.println(u.getBalance().toString());;
+        model.addAttribute("user",user);
+         System.out.println(user.getBalance().toString());;
 
         
         return "roulette";
     }
 
     @PostMapping("/api/game/routelle/lockBet")
-    public ResponseEntity<Map<String, Object>> lockBets(@RequestBody List<BetRequest> bets) {
+    public ResponseEntity<Map<String, Object>> lockBets(@RequestBody List<BetRequest> bets, HttpSession session) {
         
       
   
-    AppUser user = userService.getUserTest();
+        AppUser user = (AppUser)session.getAttribute("user");
 
         for (BetRequest bet : bets) {
             System.out.println("Type: " + bet.getBetType());
@@ -103,8 +106,8 @@ public class RouletteController {
     }
 
     @PostMapping("/api/game/routelle/betcanceled")
-    public String betCanceled(){
-            AppUser user = userService.getUserTest();
+    public String betCanceled(HttpSession session){
+        AppUser user = (AppUser)session.getAttribute("user");
 
         getRoulette(new Long(0)).betCanceled(user);
         userRepository.save(user);
