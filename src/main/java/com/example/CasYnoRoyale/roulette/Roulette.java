@@ -6,10 +6,14 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.example.CasYnoRoyale.database.User;
+import com.example.CasYnoRoyale.database.AppUser;
 
 public class Roulette {
+<<<<<<< HEAD:src/main/java/com/example/CasYnoRoyale/Roulette.java
+    ArrayList<AppUser> players  = new ArrayList<AppUser>();
+=======
     ArrayList<Bet> bets  = new ArrayList<Bet>();
+>>>>>>> main:src/main/java/com/example/CasYnoRoyale/roulette/Roulette.java
     ArrayList<Integer> tirages = new ArrayList<>();
 
      
@@ -20,7 +24,11 @@ public class Roulette {
     }
 
     public int getLastTirage(){
+<<<<<<< HEAD:src/main/java/com/example/CasYnoRoyale/Roulette.java
+        return tirages.get(tirages.size() - 1);
+=======
         return tirages.get(tirages.size()-1);
+>>>>>>> main:src/main/java/com/example/CasYnoRoyale/roulette/Roulette.java
 
     }
 

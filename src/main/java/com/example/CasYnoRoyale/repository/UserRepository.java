@@ -1,10 +1,12 @@
 package com.example.CasYnoRoyale.repository;
 
-import com.example.CasYnoRoyale.database.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.example.CasYnoRoyale.database.AppUser;
+
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    User findByUsername(String username);
+public interface UserRepository extends JpaRepository<AppUser, Long> {
+
+    AppUser findByUsername(String username);
 }

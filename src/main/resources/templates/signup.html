@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CasYno Royal - Connexion</title>
+    <title>CasYno Royal - Inscription</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
     <style>
         body {
@@ -29,11 +29,13 @@
             align-items: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            /* Header fixe */
             position: fixed;
             width: 100%;
             top: 0;
             left: 0;
             z-index: 1000;
+            height: 80px;
         }
 
         .logo {
@@ -58,31 +60,33 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
+            text-decoration: none; /* Important pour les liens <a> */
+            display: inline-block;
         }
 
-        /* Bouton Login (Actif/Désactivé visuellement ici) */
+        /* Bouton Login (Style contour ici car inactif) */
         .btn-login {
-            background: #ffd700;
-            color: #1a1a2e;
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
-        }
-
-        /* Bouton Signup (Inactif ici, style contour) */
-        .btn-signup {
             background: transparent;
             border: 2px solid #ffd700;
             color: #ffd700;
         }
 
-        .btn-signup:hover {
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
+        .btn-login:hover {
+            background: #ffd700;
             color: #1a1a2e;
             transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Bouton Signup (Style plein ici car page active) */
+        .btn-signup {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
         }
 
-        /* Styles spécifiques au formulaire de connexion */
-        .login-container {
+        /* Conteneur du formulaire */
+        .signup-container {
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             padding: 3rem;
             border-radius: 20px;
@@ -90,13 +94,15 @@
             max-width: 450px;
             width: 90%;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            /* margin-top: 80px;  Optionnel : peut être réduit si le centrage auto suffit, mais utile pour éviter le header */
-            margin-top: 100px; 
-            margin-bottom: 2rem; /* Espace avant le footer */
+            
+            /* CENTRAGE */
+            margin: auto; 
+            margin-top: 40px; /* Un peu d'air par rapport au header si l'écran est petit */
+            margin-bottom: 40px;
             margin: auto; 
         }
 
-        .login-container h2 {
+        .signup-container h2 {
             color: #ffd700;
             margin-bottom: 2rem;
             text-align: center;
@@ -177,39 +183,40 @@
     <header>
         <div class="logo">♠ CASYNO ROYAL ♥</div>
         <div class="auth-buttons">
-            <!-- Bouton connexion désactivé car on y est -->
-            <button class="btn btn-login" disabled>
+            <button class="btn btn-login" onclick="window.location.href='/login'">
                 Connexion
             </button>
-            <button class="btn btn-signup" onclick="window.location.href='/signup'">Inscription</button>
+            <button class="btn btn-signup" onclick="window.location.href='/signup'" disabled>Inscription</button>
         </div>
     </header>
 
-    <div class="login-container">
-        <h2>Bienvenue</h2>
+    <div class="signup-container">
+        <h2>Créer un compte</h2>
 
-        <div th:if="${param.error}" class="alert alert-danger" role="alert">
-            Nom d'utilisateur ou mot de passe incorrect.
+        <div th:if="${error}" class="alert alert-danger" role="alert">
+            <p th:text="${error}"></p>
+        </div>
+        <div th:if="${message}" class="alert alert-success" role="alert">
+            <p th:text="${message}"></p>
         </div>
 
-        <div th:if="${param.logout}" class="alert alert-success" role="alert">
-            Vous avez été déconnecté avec succès.
-        </div>
-
-       <form action="/login" method="post">
+        <form th:action="@{/signup}" th:object="${appUser}" method="post">
+            <div class="mb-3"> <label for="name" class="form-label">Nom</label>
+                <input type="text" id="name" name="name" class="form-control" th:field="*{name}" required>
+            </div>
             <div class="mb-3">
                 <label for="username" class="form-label">Nom d'utilisateur</label>
-                <input class="form-control" type="text" id="username" name="username"  required autofocus>
+                <input type="text" id="username" name="username" class="form-control" th:field="*{username}" required>
             </div>
             <div class="mb-3">
-                <label  class="form-label" for="password">Mot de passe</label>
-                <input class="form-control" type="password" id="password" name="password"  required>
+                <label for="password" class="form-label">Mot de passe</label>
+                <input type="password" id="password" name="password" class="form-control" th:field="*{password}" required>
             </div>
             
-            <button type="submit" class="btn btn-submit">Se connecter</button>
+            <button type="submit" class="btn btn-submit">S'inscrire</button>
         </form>
 
-        <p class="text-center mt-3" style="color: #ccc;">Pas encore de compte ? <a href="/signup" style="color: #ffd700; text-decoration: none;">Inscrivez-vous ici</a></p>
+        <p class="text-center mt-3" style="color: #ccc;">Déjà un compte ? <a href="/login" style="color: #ffd700; text-decoration: none;">Connectez-vous ici</a></p>
     </div>
 
     <footer>
@@ -217,7 +224,7 @@
         <p>Avertissement : Ce site est une démonstration. Les jeux d'argent peuvent créer une dépendance.</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 
 </html>
