@@ -7,7 +7,7 @@ import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 @Data @Entity
-public class AppUser {
+public class AppUserNull {
     @Id
     private String username;
 

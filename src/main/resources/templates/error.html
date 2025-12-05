@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CasYno Royal - Erreur</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            margin: 0;
+        }
+
+        .error-container {
+            padding: 3rem;
+            max-width: 600px;
+            width: 90%;
+            /* Effet de carte givrée/sombre */
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2); /* Bordure dorée subtile */
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 6rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            /* Dégradé doré sur le texte */
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        h2 {
+            color: #ccc;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        p {
+            color: #aaa;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .btn-home {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+            color: #1a1a2e;
+        }
+
+        footer {
+            margin-top: 3rem;
+            color: #555;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="error-container">
+        <!-- Icône décorative (Carte joker ou dés) -->
+        <div class="game-icon">🃏</div>
+        
+        <!-- Code d'erreur (affiche le status s'il existe, sinon 404) -->
+        <h1 th:text="${status} ?: '404'">404</h1>
+        
+        <h2>Rien ne va plus !</h2>
+        
+        <p>
+            Il semblerait que vous ayez misé sur une mauvaise page.<br>
+            Cette table n'existe pas ou a été déplacée par la direction.
+        </p>
+
+        <a href="/" class="btn-home">Retourner au Lobby</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 CasYno Royal. Le jeu peut comporter des risques.</p>
+    </footer>
+
+</body>
+</html>
