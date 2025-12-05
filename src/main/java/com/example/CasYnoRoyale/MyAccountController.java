@@ -93,17 +93,24 @@ public class MyAccountController {
     public String addBalance(RedirectAttributes model,
                             HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
-        BigDecimal maxBalance = new BigDecimal(100.0);
+        BigDecimal maxBalance = new BigDecimal(1500.0);
+        BigDecimal addingBalanceValue = new BigDecimal(100.0);
+        BigDecimal newBalanceValue;
         
         if (user == null) {
             return "redirect:/login";
         }
 
         if (user.getBalance().compareTo(maxBalance) >= 0) {
-            model.addFlashAttribute("error", "Vous avez déjà 100 de crédits. Dépensez les !");
+            model.addFlashAttribute("error", "Vous avez déjà 1500 de crédits. Dépensez les !");
         } else {
-            user.setBalance(maxBalance);
-            userRepository.save(user);
+            newBalanceValue = user.getBalance().add(addingBalanceValue);
+            if (newBalanceValue.compareTo(maxBalance) >= 0) {
+                user.setBalance(maxBalance);
+            } else {
+                user.setBalance(newBalanceValue);
+                userRepository.save(user);
+            }
 
             model.addFlashAttribute("message", "Solde mis à jour !");
         }
