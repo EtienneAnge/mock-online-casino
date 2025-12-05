@@ -27,6 +27,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.example.CasYnoRoyale.service.AppUserService;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -80,6 +82,7 @@ public class RouletteController {
         return "roulette";
     }
 
+    // @RequestParam("idRoom") Long idRoom)
     @PostMapping("/api/game/routelle/lockBet")
     public ResponseEntity<Map<String, Object>> lockBets(@RequestBody List<BetRequest> bets, HttpSession session) {
         
@@ -97,20 +100,42 @@ public class RouletteController {
         }
                 userRepository.save(user);
 
-
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Paris acceptés");
-        response.put("nouveauSolde", user.getBalance());
+
 
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/api/game/routelle/refreshData")
+    public ResponseEntity<Map<String, Object>> refreshData(HttpSession session){
+        AppUser user = (AppUser)session.getAttribute("user");
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Paris acceptés");
+        response.put("nouveauSolde", user.getBalance());
+        response.put("historique", getRoulette(new Long(0)).getTirages());
+
+        return ResponseEntity.ok(response);}
 
     @PostMapping("/api/game/routelle/betcanceled")
-    public String betCanceled(HttpSession session){
+    public ResponseEntity<Map<String, Object>> betCanceled(HttpSession session){
         AppUser user = (AppUser)session.getAttribute("user");
 
         getRoulette(new Long(0)).betCanceled(user);
         userRepository.save(user);
-        return null;
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Paris annulés");
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/game/routelle/tirer")
+    public ResponseEntity<Map<String, Object>> tirer(HttpSession session){
+        AppUser user = (AppUser)session.getAttribute("user");
+
+        getRoulette(new Long(0)).tirer();
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "tirer");
+
+        return ResponseEntity.ok(response);
     }
 }

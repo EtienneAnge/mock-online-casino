@@ -4,121 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CasYno Royale - Table Complète</title>
-    
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #2c3e50;
-            color: white;
-            margin: 0;
-            padding: 20px;
-            user-select: none; /* Empêche la sélection de texte pendant le drag */
-        }
-
-        .main-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 50px;
-            flex-wrap: wrap;
-        }
-
-        /* --- ROUE (Partie Gauche) --- */
-        .wheel-section { text-align: center; }
-        #rouletteWrapper {
-            position: relative;
-            width: 300px; height: 300px;
-            margin: 0 auto 20px auto;
-        }
-        #roulettePng { width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1); }
-
-        /* --- TAPIS DE JEU (Partie Droite) --- */
-        .board-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .betting-board {
-            display: grid;
-            /* Col 1: Chances Simples (ex: Rouge/Noir) - 80px
-               Col 2: Douzaines - 60px
-               Col 3,4,5: Numéros - 50px chacun
-            */
-            grid-template-columns: 80px 60px 50px 50px 50px; 
-            gap: 2px;
-            background-color: #1e8449;
-            padding: 10px;
-            border: 8px solid #145a32;
-            border-radius: 8px;
-        }
-
-        .cell {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            font-weight: bold;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            position: relative;
-        }
-
-        /* Zones interactives */
-        .drop-zone { cursor: pointer; }
-        .drop-zone:hover { background-color: rgba(255,255,255,0.2) !important; }
-
-        /* Couleurs et Styles Spécifiques */
-        .num-red { background-color: #c0392b; }
-        .num-black { background-color: #2c3e50; }
-        .num-green { background-color: transparent; } /* Le 0 */
-        
-        .side-bet { font-size: 0.8em; text-transform: uppercase; background-color: #145a32; }
-        
-        /* Forme spéciale pour Rouge/Noir sur le tapis */
-        .diamond-red { width: 20px; height: 20px; background: #c0392b; transform: rotate(45deg); }
-        .diamond-black { width: 20px; height: 20px; background: #2c3e50; transform: rotate(45deg); }
-
-        /* Spans pour la grille */
-        .span-0 { grid-column: 3 / span 3; height: 40px; } /* Le 0 */
-        .span-row-4 { grid-row: span 4; } /* Douzaines (4 lignes x 3 = 12) */
-        .span-row-2 { grid-row: span 2; } /* Chances simples (2 lignes x 6 = 12) */
-
-        /* --- JETONS --- */
-        .chips-container {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: rgba(0,0,0,0.3);
-            border-radius: 50px;
-            display: flex;
-            gap: 10px;
-        }
-        .chip {
-            width: 35px; height: 35px;
-            border-radius: 50%;
-            border: 2px dashed white;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 11px; font-weight: bold; color: white;
-            cursor: grab;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        .chip-5 { background: #e74c3c; }
-        .chip-10 { background: #3498db; }
-        .chip-25 { background: #2ecc71; color: black; }
-        .chip-100 { background: #2c3e50; border-color: #f1c40f; color: #f1c40f; }
-
-        /* Jeton posé */
-        .placed-chip {
-            position: absolute; width: 22px; height: 22px; font-size: 9px;
-            border: 1px solid white; z-index: 10; pointer-events: none;
-        }
-
-        #spinButton {
-            margin-top: 20px; padding: 10px 30px;
-            background: #f1c40f; border: none; font-weight: bold; color: #2c3e50; cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/styleRoulette.css}">
 </head>
 <body>
     <span th:text="${user.name}">[Placeholder]</span>
@@ -126,6 +12,12 @@
 
 <div class="main-container">
     
+    <div class="history-section">
+        <h3>Derniers Tirages</h3>
+        <div id="history-container" class="history-grid"></div> 
+    </div>
+
+ 
     <div class="wheel-section">
         <div id="rouletteWrapper">
             <img id="roulettePng" th:src="@{/img/Casino_Roulette.png}">
@@ -133,7 +25,7 @@
         <div>Total misé : <span id="totalBet">0</span> €</div>
         <button id="spinButton">Bloquer les paris</button>
         <br><br>
-        <button onclick="clearBets()" style="background:none; border:1px solid #aaa; color:#aaa; cursor:pointer;">Effacer tout</button>
+        <button onclick="cancelBets()" style="background:none; border:1px solid #aaa; color:#aaa; cursor:pointer;">Effacer tout</button>
     </div>
 
     <div class="board-wrapper">
@@ -152,199 +44,8 @@
     </div>
 </div>
 
-<script>
-    // --- CONFIGURATION ---
-    const board = document.getElementById('board');
-    const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-    let currentBets = [];
 
-    // --- GÉNÉRATION DU PLATEAU (GRID) ---
-    // La grille fait 12 rangées de hauteur (36 numéros / 3 colonnes)
-    
-    for (let row = 0; row < 12; row++) {
-        // Le numéro de départ de la rangée (ex: 1, 4, 7...)
-        let numStart = (row * 3) + 1;
-
-        // 1. COLONNE "CHANCES SIMPLES" (Tout à gauche) - Prend 2 rangées de hauteur à chaque fois
-        // Ordre classique tapis : 1-18, Pair, Rouge, Noir, Impair, 19-36
-        if (row % 2 === 0) {
-            let sideBetDiv = document.createElement('div');
-            sideBetDiv.className = 'cell side-bet span-row-2 drop-zone';
-            
-            if(row === 0) { setText(sideBetDiv, "1 - 18"); setBetData(sideBetDiv, "LOW_HIGH", 0); }
-            if(row === 2) { setText(sideBetDiv, "PAIR");   setBetData(sideBetDiv, "PARITY", 0); }
-            if(row === 4) { 
-                sideBetDiv.innerHTML = "<div class='diamond-red'></div>"; 
-                setBetData(sideBetDiv, "COLOR", 0); // 0 = Rouge
-            }
-            if(row === 6) { 
-                sideBetDiv.innerHTML = "<div class='diamond-black'></div>"; 
-                setBetData(sideBetDiv, "COLOR", 1); // 1 = Noir
-            }
-            if(row === 8) { setText(sideBetDiv, "IMPAIR"); setBetData(sideBetDiv, "PARITY", 1); }
-            if(row === 10){ setText(sideBetDiv, "19 - 36");setBetData(sideBetDiv, "LOW_HIGH", 1); }
-
-            board.appendChild(sideBetDiv);
-        }
-
-        // 2. COLONNE "DOUZAINES" - Prend 4 rangées
-        if (row % 4 === 0) {
-            let dozenDiv = document.createElement('div');
-            dozenDiv.className = 'cell side-bet span-row-4 drop-zone';
-            if(row === 0) { setText(dozenDiv, "1ère 12"); setBetData(dozenDiv, "DOZEN", 0); }
-            if(row === 4) { setText(dozenDiv, "2ème 12"); setBetData(dozenDiv, "DOZEN", 1); }
-            if(row === 8) { setText(dozenDiv, "3ème 12"); setBetData(dozenDiv, "DOZEN", 2); }
-            board.appendChild(dozenDiv);
-        }
-
-        // 3. LES 3 NUMÉROS DE LA RANGÉE
-        for (let i = 0; i < 3; i++) {
-            let currentNum = numStart + i;
-            let numDiv = document.createElement('div');
-            numDiv.className = 'cell drop-zone';
-            numDiv.innerText = currentNum;
-            
-            if (redNumbers.includes(currentNum)) numDiv.classList.add('num-red');
-            else numDiv.classList.add('num-black');
-
-            setBetData(numDiv, "STRAIGHT_UP", currentNum); // Val = le numéro lui-même
-            
-            board.appendChild(numDiv);
-        }
-    }
-
-    // 4. LIGNE DU BAS : LES COLONNES (2 TO 1)
-    // On ajoute 2 cellules vides pour l'alignement à gauche
-    board.appendChild(createEmpty()); 
-    board.appendChild(createEmpty());
-
-    for(let c = 0; c < 3; c++) {
-        let colDiv = document.createElement('div');
-        colDiv.className = 'cell side-bet drop-zone';
-        colDiv.innerText = "2 pour 1";
-        // Colonne 1 (1,4,7..) est l'index 0 dans l'enum Java
-        setBetData(colDiv, "COLUMN", c); 
-        board.appendChild(colDiv);
-    }
-
-    // --- UTILITAIRES ---
-    function setText(el, text) { el.innerText = text; }
-    function createEmpty() { let d = document.createElement('div'); d.style.border='none'; return d; }
-    
-    // Configure les attributs data pour correspondre à l'Enum Java
-    function setBetData(element, type, val) {
-        element.dataset.type = type; // ex: COLOR
-        element.dataset.val = val;   // ex: 0
-    }
-
-    // --- LOGIQUE DRAG & DROP ---
-    let draggedAmount = 0;
-    let draggedClass = "";
-
-    // 1. Initialiser les jetons
-    document.querySelectorAll('.chip').forEach(chip => {
-        chip.addEventListener('dragstart', (e) => {
-            draggedAmount = parseInt(e.target.dataset.amount);
-            draggedClass = Array.from(e.target.classList).find(c => c.startsWith('chip-'));
-            e.target.style.opacity = "0.5";
-        });
-        chip.addEventListener('dragend', (e) => e.target.style.opacity = "1");
-    });
-
-    // 2. Initialiser les zones de dépôt (les cellules créées dynamiquement + le 0 statique)
-    // On utilise un setTimeout pour s'assurer que le DOM est généré
-    setTimeout(() => {
-        document.querySelectorAll('.drop-zone').forEach(zone => {
-            zone.addEventListener('dragover', (e) => e.preventDefault()); // Autoriser le drop
-            
-            zone.addEventListener('dragenter', (e) => {
-                e.target.style.boxShadow = "inset 0 0 10px gold";
-            });
-            
-            zone.addEventListener('dragleave', (e) => {
-                e.target.style.boxShadow = "none";
-            });
-
-            zone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                e.target.style.boxShadow = "none";
-                
-                // Récupérer les infos du pari
-                let betType = e.target.dataset.type;
-                let betVal = e.target.dataset.val;
-
-                if(!betType) return; // Sécurité
-
-                placeBet(betType, betVal, draggedAmount);
-
-                // Ajouter visuel
-                let visualChip = document.createElement('div');
-                visualChip.className = `chip placed-chip ${draggedClass}`;
-                visualChip.innerText = draggedAmount;
-                // Position aléatoire légère
-                let rx = Math.floor(Math.random() * 10) - 5;
-                let ry = Math.floor(Math.random() * 10) - 5;
-                visualChip.style.transform = `translate(${rx}px, ${ry}px)`;
-                
-                e.target.appendChild(visualChip);
-            });
-        });
-    }, 100);
-
-    function placeBet(type, val, amount) {
-        currentBets.push({
-            betType: type,          // Pour mapper avec Enum Java
-            selectionValue: parseInt(val), // 0 ou 1, ou le numéro
-            amount: amount
-        });
-        updateTotal();
-        console.log("Pari ajouté : ", currentBets[currentBets.length-1]);
-    }
-
-    function updateTotal() {
-        let total = currentBets.reduce((sum, b) => sum + b.amount, 0);
-        document.getElementById('totalBet').innerText = total;
-    }
-
-    function clearBets() {
-        currentBets = [];
-        updateTotal();
-        document.querySelectorAll('.placed-chip').forEach(c => c.remove());
-    }
-
-    // --- LOGIQUE BOUTON JOUER ---
-    document.getElementById('spinButton').addEventListener('click', () => {
-        if(currentBets.length === 0) return alert("Pariez d'abord !");
-        
-        // C'est ici que tu appelleras ton API Spring Boot
-         fetch('/api/game/routelle/lockBet', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(currentBets)
-        }).then(response => response.json()) // On transforme la réponse en objet JS
-    .then(data => {
-        if (data.nouveauSolde !== undefined) {
-            console.log("Mise à jour du solde : " + data.nouveauSolde);
-
-            // C'EST ICI QUE LA MAGIE OPÈRE :
-            // On cherche la balise par son ID et on change son texte
-            document.getElementById("mon-solde").innerText = data.nouveauSolde;
-            
-            alert(data.message); // "Paris acceptés"
-        } else {
-            // Gestion d'erreur si le serveur renvoie un message d'erreur
-            alert("Erreur : " + data.message);
-        }
-    });
-        
-
-        // Animation de la roue (Simulation)
-        let wheel = document.getElementById('roulettePng');
-        let currentRot = parseFloat(wheel.style.transform.replace(/[^0-9.]/g, '') || 0);
-        wheel.style.transform = `rotate(${currentRot + 720 + Math.random()*360}deg)`;
-    });
-
-</script>
 
 </body>
+    <script th:src="@{/scriptRoulette.js}"></script>
 </html>
