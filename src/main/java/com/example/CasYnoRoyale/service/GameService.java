@@ -36,7 +36,7 @@ public class GameService {
         if (bj == null) {
             bj = new Game();
             blackjack = bj;
-            bj.setLabel("BlackJack");
+            bj.setLabel("Blackjack");
             bj.setUrl("/games/blackjack");
             gameRepository.save(bj);
 

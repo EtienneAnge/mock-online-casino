@@ -1,4 +1,3 @@
-
 // --- CONFIGURATION ---
 const board = document.getElementById('board');
 const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
@@ -248,11 +247,6 @@ function getNumberColor(number) {
     return 'ball-black';
 }
 
-function exitRoom(){
-    if(window.confirm("Souhaitez-vous vraiment quitter la table ?")){
-        window.open("/","Merci d'avoir joué !");
-    }
-}
 
 
 function updateHistoryUI(historiqueNumbers) {

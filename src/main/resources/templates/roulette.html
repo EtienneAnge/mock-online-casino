@@ -7,17 +7,17 @@
     <link rel="stylesheet" th:href="@{/css/styleRoulette.css}">
 </head>
 <body>
-<span th:text="${user.name}">[Placeholder]</span>
-<span id="mon-solde" th:text="${user.balance}">[Placeholder]</span>
+    <span th:text="${user.name}">[Placeholder]</span>
+    <span id="mon-solde" th:text="${user.balance}">[Placeholder]</span>
 
 <div class="main-container">
-    <button id="exitButton">Partir de la table</button>
+    
     <div class="history-section">
         <h3>Derniers Tirages</h3>
-        <div id="history-container" class="history-grid"></div>
+        <div id="history-container" class="history-grid"></div> 
     </div>
 
-
+ 
     <div class="wheel-section">
         <div id="rouletteWrapper">
             <img id="roulettePng" th:src="@{/img/Casino_Roulette.png}">
@@ -30,10 +30,10 @@
 
     <div class="board-wrapper">
         <div class="betting-board" id="board">
-            <div style="grid-column: 1 / span 2; border:none;"></div>
+            <div style="grid-column: 1 / span 2; border:none;"></div> 
             <div class="cell num-green span-0 drop-zone" data-type="STRAIGHT_UP" data-val="0">0</div>
-
-        </div>
+            
+            </div>
 
         <div class="chips-container">
             <div class="chip chip-5" draggable="true" data-amount="5">5</div>
@@ -47,5 +47,5 @@
 
 
 </body>
-<script th:src="@{/scriptRoulette.js}"></script>
+    <script th:src="@{/scriptRoulette.js}"></script>
 </html>
