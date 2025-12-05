@@ -28,9 +28,5 @@ public class Room {
     @OneToMany(mappedBy = "room")
     private List<Transaction> transactions;
 
-    private Long idRoulette;
-
-    public Roulette getRoulette(RouletteController rouletteController){
-        return rouletteController.getRoulette(idRoulette);
-    }
+    private Long idInstanceGame;
 }

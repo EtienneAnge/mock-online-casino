@@ -1,0 +1,146 @@
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            user-select: none; /* Empêche la sélection de texte pendant le drag */
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        /* --- ROUE (Partie Gauche) --- */
+        .wheel-section { text-align: center; }
+        #rouletteWrapper {
+            position: relative;
+            width: 300px; height: 300px;
+            margin: 0 auto 20px auto;
+        }
+        #roulettePng { width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1); }
+
+        /* --- TAPIS DE JEU (Partie Droite) --- */
+        .board-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .betting-board {
+            display: grid;
+            /* Col 1: Chances Simples (ex: Rouge/Noir) - 80px
+               Col 2: Douzaines - 60px
+               Col 3,4,5: Numéros - 50px chacun
+            */
+            grid-template-columns: 80px 60px 50px 50px 50px;
+            gap: 2px;
+            background-color: #1e8449;
+            padding: 10px;
+            border: 8px solid #145a32;
+            border-radius: 8px;
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+        }
+
+        /* Zones interactives */
+        .drop-zone { cursor: pointer; }
+        .drop-zone:hover { background-color: rgba(255,255,255,0.2) !important; }
+
+        /* Couleurs et Styles Spécifiques */
+        .num-red { background-color: #c0392b; }
+        .num-black { background-color: #2c3e50; }
+        .num-green { background-color: transparent; } /* Le 0 */
+
+        .side-bet { font-size: 0.8em; text-transform: uppercase; background-color: #145a32; }
+
+        /* Forme spéciale pour Rouge/Noir sur le tapis */
+        .diamond-red { width: 20px; height: 20px; background: #c0392b; transform: rotate(45deg); }
+        .diamond-black { width: 20px; height: 20px; background: #2c3e50; transform: rotate(45deg); }
+
+        /* Spans pour la grille */
+        .span-0 { grid-column: 3 / span 3; height: 40px; } /* Le 0 */
+        .span-row-4 { grid-row: span 4; } /* Douzaines (4 lignes x 3 = 12) */
+        .span-row-2 { grid-row: span 2; } /* Chances simples (2 lignes x 6 = 12) */
+
+        /* --- JETONS --- */
+        .chips-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 50px;
+            display: flex;
+            gap: 10px;
+        }
+        .chip {
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            border: 2px dashed white;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 11px; font-weight: bold; color: white;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .chip-5 { background: #e74c3c; }
+        .chip-10 { background: #3498db; }
+        .chip-25 { background: #2ecc71; color: black; }
+        .chip-100 { background: #2c3e50; border-color: #f1c40f; color: #f1c40f; }
+
+        /* Jeton posé */
+        .placed-chip {
+            position: absolute; width: 22px; height: 22px; font-size: 9px;
+            border: 1px solid white; z-index: 10; pointer-events: none;
+        }
+
+        #spinButton {
+            margin-top: 20px; padding: 10px 30px;
+            background: #f1c40f; border: none; font-weight: bold; color: #2c3e50; cursor: pointer;
+        }
+
+
+        /* styleRoulette.css */
+
+.history-grid {
+    display: flex;
+    flex-direction: row-reverse; /* Pour afficher le plus récent à gauche (ou en haut) */
+    gap: 5px;
+    overflow-x: auto;
+    padding: 10px;
+    background-color: #2c3e50;
+    border-radius: 8px;
+    height: 60px;
+    align-items: center;
+}
+
+.history-ball {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2em;
+    border: 2px solid #fff;
+    flex-shrink: 0;
+}
+
+/* Couleurs des billes */
+.ball-red { background-color: #e74c3c; }
+.ball-black { background-color: #222; }
+.ball-green { background-color: #27ae60; }
