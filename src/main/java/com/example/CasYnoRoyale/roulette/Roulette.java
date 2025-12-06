@@ -19,6 +19,7 @@ public class Roulette {
         resetTime();
     }
 
+
     public int getLastTirage(){
         return tirages.get(tirages.size()-1);
 
@@ -32,6 +33,9 @@ public class Roulette {
         
     }
 
+    public ZonedDateTime getProchainTirage(){
+        return prochainTirage;
+    }
     public int tirer(){
         if(ZonedDateTime.now().isAfter(prochainTirage)){
             

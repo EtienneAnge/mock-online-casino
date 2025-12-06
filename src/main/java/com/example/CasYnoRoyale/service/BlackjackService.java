@@ -1,5 +1,6 @@
 package com.example.CasYnoRoyale.service;
 
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import com.example.CasYnoRoyale.model.blackjack.Deck;

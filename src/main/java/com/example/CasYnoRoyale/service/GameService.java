@@ -29,9 +29,7 @@ public class GameService {
     @PostConstruct
     @Transactional
     public void initDatabaseOnStartup() {
-        appUserRepository.deleteAll();
-        roomRepository.deleteAll();
-        gameRepository.deleteAll();
+  
         Game bj = gameRepository.findByLabel("BlackJack");
         if (bj == null) {
             bj = new Game();
@@ -52,6 +50,9 @@ public class GameService {
         }
 
 
+    }
+    public Game getRoulette(){
+        return gameRepository.findByLabel("Roulette");
     }
 
 }
