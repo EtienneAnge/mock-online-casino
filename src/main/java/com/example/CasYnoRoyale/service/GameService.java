@@ -18,6 +18,7 @@ public class GameService {
     private final RoomRepository roomRepository;
     @Getter
     private Game roulette;
+    @Getter
     private Game blackjack;
 
     public GameService(GameRepository gameRepository, RoomRepository roomRepository, AppUserRepository appUserRepository) {
