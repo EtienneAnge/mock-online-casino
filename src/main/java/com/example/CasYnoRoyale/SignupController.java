@@ -1,5 +1,7 @@
 package com.example.CasYnoRoyale;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,7 +60,7 @@ public class SignupController {
         // Assigner le rôle trouvé à l'utilisateur
         formUser.setRole(defaultRole);
 
-        formUser.setBalance(java.math.BigDecimal.ZERO); // Initialiser le solde à 0
+        formUser.setBalance(new BigDecimal(100)); // Initialiser le solde à 0
         formUser.setPassword(formUser.getPassword()); // mot de passe de l'utilisateur
         formUser.setName(formUser.getName()); //Nom de l'utilisateur
 

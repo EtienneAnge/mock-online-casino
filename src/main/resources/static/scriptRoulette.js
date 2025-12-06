@@ -4,7 +4,56 @@ const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 3
 let currentBets = [];
 const urlParams = new URLSearchParams(window.location.search);
 const idRoom = urlParams.get('idRoom');
+let moneyRemaining = 0;
 
+let timerInterval = null; // Variable globale pour stocker l'intervalle
+
+function startTimer(targetIsoDate) {
+    // 1. Nettoyer l'ancien timer s'il existe pour éviter les conflits
+    if (timerInterval) clearInterval(timerInterval);
+
+    const timerElement = document.getElementById('timer');
+    const targetTime = new Date(targetIsoDate).getTime();
+
+    // Fonction de mise à jour immédiate
+    const update = () => {
+        const now = new Date().getTime();
+        const distance = targetTime - now;
+
+        // Si le temps est écoulé
+        if (distance <= 0) {
+            clearInterval(timerInterval);
+            timerElement.innerText = "00:00";
+            timerElement.classList.add('timer-urgent'); // Effet visuel
+            
+            refreshData();
+     
+            // OPTIONNEL : Désactiver les boutons ou lancer l'animation ici
+            // document.getElementById('spinButton').disabled = true;
+            return;
+        }
+
+        // Calcul des minutes et secondes
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Formatage avec le zéro devant (ex: 09:05)
+        timerElement.innerText = 
+            (minutes < 10 ? "0" + minutes : minutes) + ":" + 
+            (seconds < 10 ? "0" + seconds : seconds);
+
+        // Ajout classe urgent si < 10 secondes
+        if (distance < 10000) {
+            timerElement.classList.add('timer-urgent');
+        } else {
+            timerElement.classList.remove('timer-urgent');
+        }
+    };
+
+    // Lancer immédiatement puis chaque seconde
+    update(); 
+    timerInterval = setInterval(update, 1000);
+}
 // --- GÉNÉRATION DU PLATEAU (GRID) ---
 // La grille fait 12 rangées de hauteur (36 numéros / 3 colonnes)
 
@@ -121,7 +170,7 @@ setTimeout(() => {
             let betVal = e.target.dataset.val;
 
             if(!betType) return; // Sécurité
-
+            if(draggedAmount > moneyRemaining) return;
             placeBet(betType, betVal, draggedAmount);
 
             // Ajouter visuel
@@ -139,6 +188,7 @@ setTimeout(() => {
 }, 100);
 
 function placeBet(type, val, amount) {
+    currentBets = [];
     currentBets.push({
         betType: type,          // Pour mapper avec Enum Java
         selectionValue: parseInt(val), // 0 ou 1, ou le numéro
@@ -198,15 +248,33 @@ function refreshData(){
         // 1. Mise à jour du solde (déjà existant)
         if(data.nouveauSolde !== undefined) {
              document.getElementById('mon-solde').innerText = data.nouveauSolde;
+             moneyRemaining = data.nouveauSolde;
         }
 
         // 2. Mise à jour de l'historique
         if (data.historique) {
             updateHistoryUI(data.historique);
         }
+
+        // 3. : Mise à jour du minuteur ---
+        if (data.prochainTirage) {
+            // data.prochainTirage doit être au format ISO (ex: "2023-10-27T10:15:30Z")
+            // Spring Boot (Jackson) le fait généralement par défaut pour ZonedDateTime
+            startTimer(data.prochainTirage);
+        }
+
+        if(data.tirage){
+            tirage(data.tirage);
+        }
     })
     .catch(error => console.error('Erreur:', error));
   
+}
+
+function tirage(t){
+    annimationRoulette();
+    clearBets();
+    refreshData();
 }
 
 document.getElementById("exitButton").addEventListener('click',()=>{
@@ -224,7 +292,7 @@ document.getElementById("exitButton").addEventListener('click',()=>{
 });
 
 document.getElementById("spinButton").addEventListener('click',() => {
-    fetch('/api/game/roulette/tirer', {
+    fetch('/api/game/roulette/refreshData', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(idRoom)

@@ -4,18 +4,18 @@ package com.example.CasYnoRoyale.database;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
-
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Data
 @Table(name = "Users")
-public class AppUser {
+public class AppUser implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUser;
-
+private static final long serialVersionUID = 1L;
     private String name;
     
     @Column(name = "username", unique = true)
