@@ -4,7 +4,7 @@ const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 3
 let currentBets = [];
 const urlParams = new URLSearchParams(window.location.search);
 const idRoom = urlParams.get('idRoom');
-
+let moneyRemaining = 0;
 
 let timerInterval = null; // Variable globale pour stocker l'intervalle
 
@@ -25,9 +25,9 @@ function startTimer(targetIsoDate) {
             clearInterval(timerInterval);
             timerElement.innerText = "00:00";
             timerElement.classList.add('timer-urgent'); // Effet visuel
-            annimationRoulette();
+            
             refreshData();
-            clearBets;
+     
             // OPTIONNEL : Désactiver les boutons ou lancer l'animation ici
             // document.getElementById('spinButton').disabled = true;
             return;
@@ -170,7 +170,7 @@ setTimeout(() => {
             let betVal = e.target.dataset.val;
 
             if(!betType) return; // Sécurité
-
+            if(draggedAmount > moneyRemaining) return;
             placeBet(betType, betVal, draggedAmount);
 
             // Ajouter visuel
@@ -248,6 +248,7 @@ function refreshData(){
         // 1. Mise à jour du solde (déjà existant)
         if(data.nouveauSolde !== undefined) {
              document.getElementById('mon-solde').innerText = data.nouveauSolde;
+             moneyRemaining = data.nouveauSolde;
         }
 
         // 2. Mise à jour de l'historique
@@ -261,9 +262,19 @@ function refreshData(){
             // Spring Boot (Jackson) le fait généralement par défaut pour ZonedDateTime
             startTimer(data.prochainTirage);
         }
+
+        if(data.tirage){
+            tirage(data.tirage);
+        }
     })
     .catch(error => console.error('Erreur:', error));
   
+}
+
+function tirage(t){
+    annimationRoulette();
+    clearBets();
+    refreshData();
 }
 
 document.getElementById("exitButton").addEventListener('click',()=>{
@@ -281,7 +292,7 @@ document.getElementById("exitButton").addEventListener('click',()=>{
 });
 
 document.getElementById("spinButton").addEventListener('click',() => {
-    fetch('/api/game/roulette/tirer', {
+    fetch('/api/game/roulette/refreshData', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(idRoom)

@@ -118,7 +118,12 @@ public class RouletteController {
     @PostMapping("/api/game/roulette/refreshData")
     public ResponseEntity<Map<String, Object>> refreshData(HttpSession session,@RequestBody Long idRoom) {
         AppUser user = (AppUser)session.getAttribute("user");
+        int t = getRoulette(idRoom).tirer();
+
         Map<String, Object> response = new HashMap<>();
+        if(t != -1){
+            response.put("tirage", t);
+        }
         response.put("message", "Paris acceptés");
         response.put("nouveauSolde", user.getBalance());
         response.put("historique", getRoulette(idRoom).getTirages());
@@ -136,13 +141,5 @@ public class RouletteController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/api/game/roulette/tirer")
-    public ResponseEntity<Map<String, Object>> tirer(HttpSession session,@RequestBody Long idRoom) {
-        AppUser user = (AppUser)session.getAttribute("user");
-        getRoulette(idRoom).tirer();
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "tirer");
-
-        return ResponseEntity.ok(response);
-    }
+    
 }
