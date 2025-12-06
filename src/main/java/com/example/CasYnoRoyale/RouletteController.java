@@ -1,5 +1,6 @@
 package com.example.CasYnoRoyale;
 
+import com.example.CasYnoRoyale.DTO.LockBetRequest;
 import com.example.CasYnoRoyale.service.GameService;
 import com.example.CasYnoRoyale.service.RoleService;
 import com.example.CasYnoRoyale.service.RoomService;
@@ -47,7 +48,7 @@ public class RouletteController {
     private final GameService gameService;
     private final AppUserRepository userRepository;
     private final AppUserService userService;
-    private HashMap<Long, Roulette> idTRoulette = new HashMap();
+    private HashMap<Long, Roulette> idTRoulette = new HashMap<>();
 
     public RouletteController(AppUserService userService, AppUserRepository userRepository, RoomRepository roomRepository, RoomService roomService, GameRepository gameRepository, GameService gameService) {
         this.userService = userService;
@@ -56,7 +57,6 @@ public class RouletteController {
         this.roomService = roomService;
         this.gameRepository = gameRepository;
         this.gameService = gameService;
-        idTRoulette.put(new Long(0), new Roulette());
     }
 
     public Roulette getRoulette(Long id) {
@@ -71,6 +71,7 @@ public class RouletteController {
         }
         if(idRoom == null){
             Room r=roomService.joinRoom(idRoom,user,gameService.getRoulette());
+            idTRoulette.put(r.getIdRoom(),new Roulette());
             return "redirect:/games/roulette?idRoom="+r.getIdRoom();
         }
         Room r = roomService.findRoomById(idRoom);
@@ -81,7 +82,7 @@ public class RouletteController {
     }
 
     @PostMapping("/api/game/roulette/exit")
-    public ResponseEntity<Void> exitRoulette(Model model, @RequestParam Long idRoom,HttpSession session){
+    public ResponseEntity<Void> exitRoulette(Model model, @RequestBody Long idRoom,HttpSession session){
         AppUser user = (AppUser) session.getAttribute("user");
         if(user==null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -93,19 +94,17 @@ public class RouletteController {
 
 
     @PostMapping("/api/game/roulette/lockBet")
-    public ResponseEntity<Map<String, Object>> lockBets(@RequestBody List<BetRequest> bets, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> lockBets(@RequestBody LockBetRequest requestBody, HttpSession session) {
 
 
         AppUser user = (AppUser) session.getAttribute("user");
 
-        for (BetRequest bet : bets) {
+        for (BetRequest bet : requestBody.getBets()) {
             System.out.println("Type: " + bet.getBetType());
             System.out.println("Valeur: " + bet.getSelectionValue());
             System.out.println("Montant: " + bet.getAmount());
-            getRoulette(new Long(0)).betDeposit(new Bet(user, bet.getAmount(), bet.getBetType(), bet.getSelectionValue(), bet.getSelectionValue()));
+            getRoulette(requestBody.getIdRoom()).betDeposit(new Bet(user, bet.getAmount(), bet.getBetType(), bet.getSelectionValue(), bet.getSelectionValue()));
             System.out.println(user.getBalance().toString());
-            ;
-
         }
         userRepository.save(user);
 
@@ -116,20 +115,20 @@ public class RouletteController {
         return ResponseEntity.ok(response);
     }
     @PostMapping("/api/game/roulette/refreshData")
-    public ResponseEntity<Map<String, Object>> refreshData(HttpSession session){
+    public ResponseEntity<Map<String, Object>> refreshData(HttpSession session,@RequestBody Long idRoom) {
         AppUser user = (AppUser)session.getAttribute("user");
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Paris acceptés");
         response.put("nouveauSolde", user.getBalance());
-        response.put("historique", getRoulette(new Long(0)).getTirages());
+        response.put("historique", getRoulette(idRoom).getTirages());
 
         return ResponseEntity.ok(response);}
 
     @PostMapping("/api/game/roulette/betcanceled")
-    public ResponseEntity<Map<String, Object>> betCanceled(HttpSession session){
+    public ResponseEntity<Map<String, Object>> betCanceled(HttpSession session,@RequestBody Long idRoom) {
         AppUser user = (AppUser)session.getAttribute("user");
 
-        getRoulette(new Long(0)).betCanceled(user);
+        getRoulette(idRoom).betCanceled(user);
         userRepository.save(user);
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Paris annulés");
@@ -138,10 +137,10 @@ public class RouletteController {
     }
 
     @PostMapping("/api/game/roulette/tirer")
-    public ResponseEntity<Map<String, Object>> tirer(HttpSession session){
+    public ResponseEntity<Map<String, Object>> tirer(HttpSession session,@RequestBody Long idRoom) {
         AppUser user = (AppUser)session.getAttribute("user");
 
-        getRoulette(new Long(0)).tirer();
+        getRoulette(idRoom).tirer();
         Map<String, Object> response = new HashMap<>();
         response.put("message", "tirer");
 

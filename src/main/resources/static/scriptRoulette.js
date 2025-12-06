@@ -144,12 +144,15 @@ function placeBet(type, val, amount) {
         selectionValue: parseInt(val), // 0 ou 1, ou le numéro
         amount: amount
     });
-     // C'est ici que tu appelleras ton API Spring Boot
-        fetch('/api/game/routelle/lockBet', {
+    const requestBody = {
+        idRoom:idRoom,
+        bets:currentBets
+    }
+    fetch("/api/game/roulette/lockBet", {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(currentBets)
-    }).then(response => response.json()) // On transforme la réponse en objet JS
+        body: JSON.stringify(requestBody)
+    }).then(response => response.json())
 .then(data => {
 
         refreshData();
@@ -171,7 +174,7 @@ function clearBets() {
 
 function cancelBets() {
     
-    fetch('/api/game/routelle/betcanceled', {
+    fetch('/api/game/roulette/betcanceled', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(idRoom)
@@ -208,8 +211,10 @@ function refreshData(){
 
 document.getElementById("exitButton").addEventListener('click',()=>{
     if(window.confirm("Voulez-vous vraiment quitter la table ?")){
-        fetch(`/api/game/roulette/exit?idRoom=${idRoom}`,{
+        fetch(`/api/game/roulette/exit`,{
             method:'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(idRoom)
         }).then(response=>{
             if(response.ok){
                 window.location.href="/";
@@ -221,7 +226,8 @@ document.getElementById("exitButton").addEventListener('click',()=>{
 document.getElementById("spinButton").addEventListener('click',() => {
     fetch('/api/game/roulette/tirer', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'}
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(idRoom)
     }).then(response => response.json()).then(data => {
         refreshData();
     });
