@@ -44,6 +44,9 @@ public class Blackjack {
     // 2. Méthode appelée par le Controller : reçoit le User et le montant
     public void placeBet(AppUser user, int amount) {
         this.currentUser = user; // On lie le jeu à l'utilisateur
+
+        playerHand.clear();
+        dealerHand.clear();
         
         // La vérification du solde se fait idéalement dans le Controller ou ici
         // Ici on suppose que le Controller a vérifié user.getBalance() >= amount
