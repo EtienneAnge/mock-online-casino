@@ -30,8 +30,7 @@ public class GameService {
     @PostConstruct
     @Transactional
     public void initDatabaseOnStartup() {
-  
-        Game bj = gameRepository.findByLabel("BlackJack");
+        Game bj = gameRepository.findByLabel("Blackjack");
         if (bj == null) {
             bj = new Game();
             blackjack = bj;

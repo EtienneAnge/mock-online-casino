@@ -12,7 +12,6 @@ import com.example.CasYnoRoyale.repository.AppUserRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -22,10 +21,11 @@ public class RoomService {
 
     final RoomRepository roomRepository;
     final AppUserRepository userRepository;
-
-    public RoomService(RoomRepository roomRepository, AppUserRepository userRepository) {
+    final RoomCodeService roomCodeService;
+    public RoomService(RoomRepository roomRepository, AppUserRepository userRepository,RoomCodeService roomCodeService) {
         this.roomRepository = roomRepository;
         this.userRepository= userRepository;
+        this.roomCodeService = roomCodeService;
     }
 
     public Room createNewRoom(Game g){
@@ -41,13 +41,20 @@ public class RoomService {
     }
 
     @Transactional
-    public Room joinRoom(Long roomId, AppUser detachedUser, Game game){
+    public Room joinRoom(String roomId, AppUser detachedUser, Game game){
         Room r;
-        AppUser player = userRepository.findById(detachedUser.getIdUser()).orElseThrow(() -> new NoSuchElementException("Utilisateur non trouvé en base de données"));
+        AppUser player = userRepository.findByUsername(detachedUser.getUsername());
+        if(player==null){
+            throw new NoSuchElementException();
+        }
         if(roomId == null){
+            if(game==null){
+                return null;
+            }
             r=createNewRoom(game);
+
         }else {
-            r = roomRepository.findById(roomId)
+            r = roomRepository.findById(roomCodeService.decodeRoomId(roomId))
                     .orElseThrow(() -> new NoSuchElementException("Salle non trouvée avec l'ID : " + roomId));
         }
         r.getUsers().add(player);
@@ -57,12 +64,22 @@ public class RoomService {
         return r;
     }
 
-    public void exitRoom(@RequestParam Long roomId, AppUser player){
+    public void exitRoom(String roomId, AppUser detachedUser){
+        Long code = roomCodeService.decodeRoomId(roomId);
         if(roomId != null){
-            Room r = roomRepository.findById(roomId)
+            AppUser player = userRepository.findByUsername(detachedUser.getUsername());
+            if(player==null){
+                throw new NoSuchElementException();
+            }
+            Room r = roomRepository.findById(roomCodeService.decodeRoomId(roomId))
                     .orElseThrow(() -> new NoSuchElementException("Salle non trouvée avec l'ID : " + roomId));
+            System.out.println(r.getUsers());
+            player.getRooms().remove(r);
             r.getUsers().remove(player);
-            roomRepository.save(r);
+            if(r.getUsers().isEmpty()){
+                roomRepository.delete(r);
+            }
+            userRepository.save(player);
         }
     }
 }

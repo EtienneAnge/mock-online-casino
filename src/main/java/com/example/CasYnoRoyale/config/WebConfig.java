@@ -20,6 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/login",
                         "/signup",
                         "/h2-console/**",
+                        "/error",
                         "/");
 
     }

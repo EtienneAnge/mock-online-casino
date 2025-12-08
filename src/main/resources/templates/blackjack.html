@@ -118,7 +118,7 @@
             Joueur : <strong th:text="${user.name}">Pseudo</strong>
         </div>
         <div>
-            Salle N° <span th:text="${room.idRoom}">0</span>
+            Code de la partie: <span th:text="${@roomCodeService.generateCode(room.idRoom)}">0</span>
         </div>
         <div>
             Solde : <strong id="userBalance" th:text="${user.balance}">1000</strong> €

@@ -4,6 +4,8 @@ const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 3
 let currentBets = [];
 const urlParams = new URLSearchParams(window.location.search);
 const idRoom = urlParams.get('idRoom');
+const idRoomSpan = document.getElementById("idRoom");
+idRoomSpan.innerHTML=idRoom;
 let moneyRemaining = 0;
 
 let timerInterval = null; // Variable globale pour stocker l'intervalle
@@ -347,6 +349,7 @@ function updateHistoryUI(historiqueNumbers) {
 // Appeler refreshData au chargement de la page pour voir l'historique existant
 document.addEventListener('DOMContentLoaded', () => {
     refreshData();
+    addCodeRoom();
     // Optionnel : Lancer un rafraichissement automatique toutes les 5 secondes
     // setInterval(refreshData, 5000); 
 });

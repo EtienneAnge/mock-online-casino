@@ -7,6 +7,7 @@ import com.example.CasYnoRoyale.repository.GameRepository;
 import com.example.CasYnoRoyale.repository.RoomRepository;
 import com.example.CasYnoRoyale.service.AppUserService;
 import com.example.CasYnoRoyale.service.GameService;
+import com.example.CasYnoRoyale.service.RoomCodeService;
 import com.example.CasYnoRoyale.service.RoomService;
 import com.example.CasYnoRoyale.model.blackjack.Blackjack;
 
@@ -29,17 +30,18 @@ public class BlackjackController {
     private final GameService gameService;
     private final AppUserRepository userRepository;
     private final AppUserService userService;
-
+    private final RoomCodeService roomCodeService;
     // Stockage de l'instance de jeu par ID de salle, comme dans RouletteController
     private HashMap<Long, Blackjack> idTBlackjack = new HashMap<>();
 
-    public BlackjackController(AppUserService userService, AppUserRepository userRepository, RoomRepository roomRepository, RoomService roomService, GameRepository gameRepository, GameService gameService) {
+    public BlackjackController(AppUserService userService, AppUserRepository userRepository, RoomRepository roomRepository, RoomService roomService, RoomCodeService roomCodeService, GameRepository gameRepository, GameService gameService) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
         this.roomService = roomService;
         this.gameRepository = gameRepository;
         this.gameService = gameService;
+        this.roomCodeService = roomCodeService;
     }
 
     // Récupérer l'instance de jeu associée à la salle
@@ -48,29 +50,29 @@ public class BlackjackController {
     }
 
     @GetMapping("/games/blackjack")
-    public String blackjackPage(Model model, Long idRoom, HttpSession session) {
+    public String blackjackPage(Model model, String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
         if (user == null) {
             return "login";
         }
 
-        // Si pas d'ID de salle, on en crée une ou on en rejoint une et on redirige
+        // Si pas d'ID de salle, on en crée une où on en rejoint une et on redirige
         if (idRoom == null) {
             // On assume que gameService.getBlackjack() existe (similaire à getRoulette)
-            Room r = roomService.joinRoom(idRoom, user, gameService.getBlackjack());
+            Room r = roomService.joinRoom(null, user, gameService.getBlackjack());
             // Initialisation d'une nouvelle partie de Blackjack pour cette salle
             idTBlackjack.put(r.getIdRoom(), new Blackjack());
-            return "redirect:/games/blackjack?idRoom=" + r.getIdRoom();
+            return "redirect:/games/blackjack?idRoom=" + roomCodeService.generateCode(r.getIdRoom());
         }
 
-        Room r = roomService.findRoomById(idRoom);
+        Room r = roomService.findRoomById(roomCodeService.decodeRoomId(idRoom));
         model.addAttribute("user", user);
         model.addAttribute("room", r);
         return "blackjack"; // Le nom de votre vue HTML (Thymeleaf)
     }
 
     @PostMapping("/api/game/blackjack/exit")
-    public ResponseEntity<Void> exitBlackjack(@RequestBody Long idRoom, HttpSession session) {
+    public ResponseEntity<Void> exitBlackjack(@RequestBody String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -110,10 +112,10 @@ public class BlackjackController {
 
     // Action "Hit" (Tirer une carte)
     @PostMapping("/api/game/blackjack/hit")
-    public ResponseEntity<Map<String, Object>> playerHit(@RequestBody Long idRoom, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> playerHit(@RequestBody String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
         
-        Blackjack game = getBlackjack(idRoom);
+        Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         game.playerHit(); // Méthode supposée dans Blackjack
 
         Map<String, Object> response = new HashMap<>();
@@ -125,10 +127,10 @@ public class BlackjackController {
 
     // Action "Stand" (Rester)
     @PostMapping("/api/game/blackjack/stand")
-    public ResponseEntity<Map<String, Object>> playerStand(@RequestBody Long idRoom, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> playerStand(@RequestBody String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
 
-        Blackjack game = getBlackjack(idRoom);
+        Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         game.playerStand(); // Le croupier joue, puis fin de partie
         
         // Si le joueur a gagné, on met à jour le solde
@@ -145,13 +147,13 @@ public class BlackjackController {
 
     // Rafraichissement des données (similaire à Roulette)
     @PostMapping("/api/game/blackjack/refreshData")
-    public ResponseEntity<Map<String, Object>> refreshData(HttpSession session, @RequestBody Long idRoom) {
+    public ResponseEntity<Map<String, Object>> refreshData(HttpSession session, @RequestBody String idRoom) {
         AppUser user = (AppUser) session.getAttribute("user");
         
         Map<String, Object> response = new HashMap<>();
         response.put("nouveauSolde", user.getBalance());
         // getGameState() renverrait les cartes du joueur, du croupier et le statut (gagné/perdu)
-        response.put("historique", getBlackjack(idRoom).getGameState()); 
+        response.put("historique", getBlackjack(roomCodeService.decodeRoomId(idRoom)).getGameState());
 
         return ResponseEntity.ok(response);
     }

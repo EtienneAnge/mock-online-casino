@@ -34,7 +34,7 @@ public class DataInitializer {
         return role;
     }
 
-    // C'EST CETTE MÉTHODE QUI TE MANQUAIT :
+//    // C'EST CETTE MÉTHODE QUI TE MANQUAIT :
     private Room createRoomIfNotFound(RoomRepository repo, Game game) {
         // Logique simplifiée : on crée une salle pour le jeu si on veut des données de
         // test
@@ -106,7 +106,22 @@ public class DataInitializer {
             }
 
             Game blackjack = gameRepository.findByLabel("BlackJack");
+
             Game roulette = gameRepository.findByLabel("Roulette");
+            if (blackjack == null) {
+                blackjack = new Game();
+                blackjack.setLabel("Blackjack");
+                blackjack.setUrl("/games/blackjack");
+                gameRepository.save(blackjack);
+
+            }
+            if (roulette == null) {
+                roulette = new Game();
+                roulette.setLabel("Roulette");
+                roulette.setUrl("/games/roulette");
+                gameRepository.save(roulette);
+
+            }
             // --- 3. INITIALISATION DES SALLES (ROOMS) ---
             // On crée une salle par défaut pour chaque jeu
             Room roomBlackjack = createRoomIfNotFound(roomRepository, blackjack);
