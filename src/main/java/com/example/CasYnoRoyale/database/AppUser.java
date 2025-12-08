@@ -3,7 +3,7 @@ package com.example.CasYnoRoyale.database;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
-
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +14,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Data
 @Table(name = "Users")
-public class AppUser {
+public class AppUser implements Serializable {
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
     @GeneratedValue(strategy = GenerationType.UUID)

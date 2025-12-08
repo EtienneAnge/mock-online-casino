@@ -19,9 +19,13 @@ public class Roulette {
         resetTime();
     }
 
+
     public int getLastTirage(){
         return tirages.get(tirages.size()-1);
 
+    }
+    public ArrayList<Integer> getTirages(){
+        return tirages;
     }
 
     public void betDeposit(Bet b){
@@ -29,8 +33,12 @@ public class Roulette {
         
     }
 
+    public ZonedDateTime getProchainTirage(){
+        return prochainTirage;
+    }
     public int tirer(){
         if(ZonedDateTime.now().isAfter(prochainTirage)){
+            
             int tirage = (int) (Math.random() * 37);
             tirages.add(tirage);
             resetTime();
@@ -40,10 +48,11 @@ public class Roulette {
                 
             }
             bets.clear();
-
+            System.out.println("tirage d'un " + tirage);
             return tirage;
 
         }
+        System.out.println("attendre pour un tirage");
         return -1;
         
     }

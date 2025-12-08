@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
-
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -335,7 +334,7 @@
             <h2>Blackjack</h2>
             <p>Affrontez le croupier au blackjack. Obtenez 21 et remportez la mise ! Stratégie et chance au rendez-vous.
             </p>
-            <button class="btn-play" onclick="alert('Connectez-vous pour jouer!')">Jouer maintenant</button>
+            <button class="btn-play" onclick="window.location.href = '/games/blackjack';">Jouer maintenant</button>
         </div>
     </div>
 
