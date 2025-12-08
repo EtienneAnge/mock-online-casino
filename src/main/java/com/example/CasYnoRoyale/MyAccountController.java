@@ -7,10 +7,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.CasYnoRoyale.database.AppUser;
+import com.example.CasYnoRoyale.model.ChartDataDTO;
 import com.example.CasYnoRoyale.repository.AppUserRepository;
+import com.example.CasYnoRoyale.service.StatsService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -19,6 +22,9 @@ public class MyAccountController {
 
     @Autowired
     AppUserRepository userRepository;
+
+    @Autowired
+    StatsService statsService;
 
     @GetMapping("/myaccount")
     public String myaccount() {
@@ -81,7 +87,7 @@ public class MyAccountController {
             return "redirect:/myaccount";
         }
 
-        user.setName(newPassword);
+        user.setPassword(newPassword);
 
         userRepository.save(user);
 
@@ -109,12 +115,28 @@ public class MyAccountController {
                 user.setBalance(maxBalance);
             } else {
                 user.setBalance(newBalanceValue);
-                userRepository.save(user);
             }
 
+            userRepository.save(user);
             model.addFlashAttribute("message", "Solde mis à jour !");
         }
 
         return "redirect:/myaccount";
+    }
+
+
+
+    @GetMapping("/api/stats/balance")
+    @ResponseBody
+    public ChartDataDTO getTransactions(HttpSession session,
+                                        @RequestParam(required = false) Long gameId) {
+        AppUser user = (AppUser) session.getAttribute("user");
+
+        if (user == null) {
+            return null ;
+        }
+        System.out.println("C'est ok");
+        return statsService.getEvolutvoidionData(user, gameId);
+
     }
 }

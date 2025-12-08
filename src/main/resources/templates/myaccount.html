@@ -326,11 +326,49 @@
             <!-- ONGLET 2 : STATISTIQUES -->
             <div class="tab-pane fade" id="stats" role="tabpanel">
                 <h4 class="text-center mb-4" style="color:#ccc;">Évolution de vos gains</h4>
-                <div class="chart-container">
-                    <canvas id="balanceChart"></canvas>
+
+                <div class="d-flex justify-content-center mb-4">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-warning active"
+                            onclick="filtrerGraphique(this, null)">Tous</button>
+                        <button type="button" class="btn btn-outline-warning"
+                            onclick="filtrerGraphique(this, 1)">BlackJack</button>
+                        <button type="button" class="btn btn-outline-warning"
+                            onclick="filtrerGraphique(this, 2)">Roulette</button>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-lg-9 col-md-8">
+                        <div class="chart-container" style="position: relative; height:400px; width:100%">
+                            <canvas id="balanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-4">
+                        <div class="d-flex flex-column gap-4">
+                            <div class="p-3 border rounded border-success text-success text-center"
+                                style="background: rgba(40, 167, 69, 0.1);">
+                                <h5 class="text-uppercase small" style="letter-spacing:1px;">Total Gagné</h5>
+                                <h3 id="displayTotalWon" class="mb-0">No Data</h3>
+                            </div>
+
+                            <div class="p-3 border rounded border-danger text-danger text-center"
+                                style="background: rgba(220, 53, 69, 0.1);">
+                                <h5 class="text-uppercase small" style="letter-spacing:1px;">Total Perdu</h5>
+                                <h3 id="displayTotalLost" class="mb-0">No Data</h3>
+                            </div>
+                            <div class="p-3 border rounded text-center"
+                                style="background: rgba(255, 255, 255, 0.05); transition: all 0.3s;">
+                                <h5 class="text-uppercase small" style="color:#ccc;">Résultat Net</h5>
+                                <h3 id="displayTotalBalance" class="mb-0" style="font-weight: bold;">No Data</h3>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- MODAL -->
@@ -397,71 +435,152 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script Chart.js (inchangé) -->
     <script>
-        const ctx = document.getElementById('balanceChart').getContext('2d');
-        const labels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-        const dataPoints = [0, 50, 30, 120, 80, 200, 150];
+        //Variables globales pour le graphique
+        let myChart = null;         //Graphique
+        let currentGameId = null;   //Id du jeu à filtrer
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Solde (€)',
-                    data: dataPoints,
-                    borderColor: '#ffd700',
-                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#ffd700',
-                    pointRadius: 5,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: '#fff' } } },
-                scales: {
-                    x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#ccc' } },
-                    y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#ccc' }, beginAtZero: true }
-                }
+        //Affichage du graphique au chargement e la page
+        document.addEventListener("DOMContentLoaded", function () {
+
+            //Recupération du bouton d'onglet Statistiques
+            const statsTabTrigger = document.querySelector('button[data-bs-target="#stats"]');
+
+            //Si le bouton des onglets de statistiques existe
+            if (statsTabTrigger) {
+                //On charge le graphique lorsqu'on clique dessus
+                //'shown.bs.tab' permet d'attendre que l'onglet soit complètement affiché pour afficher le graphique
+                statsTabTrigger.addEventListener('shown.bs.tab', function (event) {
+                    chargerGraphique();
+                });
+            } else {
+                //Sinon on charge tout de suite
+                chargerGraphique();
             }
         });
+
+        //Fonction qui filtre le graphique selon le jeu selectionné
+        function filtrerGraphique(buttonElement, gameId) {
+            //Gestion visuelle des boutons (Active/Inactive)
+            document.querySelectorAll('.btn-group .btn').forEach(btn => btn.classList.remove('active'));
+            //Active le bouton
+            buttonElement.classList.add('active');
+
+            //Mise à jour de la variable globale
+            currentGameId = gameId;
+
+            //Rechargement du graphique
+            chargerGraphique(gameId);
+        }
+
+        //Fonction qui charge le graphique
+        function chargerGraphique(gameId = null) {
+            //Variable du contexte du canvas
+            const ctx = document.getElementById('balanceChart').getContext('2d');
+
+            //url de l'api qui recupère les données du graphique (Voir MyAccountController.java)
+            let url = '/api/stats/balance';
+            //Si le gameId est renseigné
+            if (gameId !== null) {
+                url += '?gameId=' + gameId;
+            }
+
+            //Requête fetch pour récupérer les données
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Erreur HTTP " + response.status);
+                    return response.json();
+                })
+                .then(apiData => {
+
+                    if (myChart) myChart.destroy();
+
+                    myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: apiData.labels,
+                            datasets: [{
+                                label: 'Gain/Perte Journalier (€)',
+                                data: apiData.data,
+                                borderWidth: 3,
+                                fill: false,
+                                tension: 0.3,
+                                pointRadius: 6,
+                                pointBackgroundColor: '#fff',
+                                segment: {
+                                    borderColor: ctx => ctx.p1.parsed.y < ctx.p0.parsed.y ? '#dc3545' : '#28a745'
+                                }
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { labels: { color: '#fff' } },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            let val = context.parsed.y;
+                                            return (val > 0 ? '+' : '') + val + ' €';
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ccc' } },
+                                y: {
+                                    grid: {
+                                        color: (context) => (context.tick.value === 0) ? '#ffffff' : 'rgba(255, 255, 255, 0.1)',
+                                        lineWidth: (context) => (context.tick.value === 0) ? 2 : 1
+                                    },
+                                    ticks: { color: '#ccc' },
+                                    beginAtZero: false
+                                }
+                            }
+                        }
+                    });
+
+                    //Total d'argent gagné avec 2 chiffres après la virgule (toFixed(2))
+                    document.getElementById("displayTotalWon").innerHTML = apiData.totalGains.toFixed(2) + " €";
+                    //Total d'argent perdu avec 2 chiffres après la virgule (toFixed(2))
+                    document.getElementById("displayTotalLost").innerHTML = apiData.totalLosses.toFixed(2) + " €";
+                    //Total d'argent perdu avec 2 chiffres après la virgule (toFixed(2))
+                    document.getElementById("displayTotalBalance").innerHTML = apiData.totalBalance.toFixed(2) + " €";
+                })
+                .catch(error => console.error("Erreur:", error));
+        }
     </script>
     <script>
-        // Récupérer la modale dans le DOM
+        //Recupère le modal de modification de données générique
         var genericModal = document.getElementById('genericEditModal');
 
-        // Ajouter un écouteur d'événement : quand la modale va s'afficher
+        //Ajouter un écouteur d'événement : quand la modale va s'afficher
         genericModal.addEventListener('show.bs.modal', function (event) {
 
-            // 1. Récupérer le bouton qui a déclenché l'ouverture
+            //Récupérer le bouton qui a déclenché l'ouverture
             var button = event.relatedTarget;
 
-            // 2. Extraire les infos des attributs data-* du bouton
-            var title = button.getAttribute('data-title');
-            var label = button.getAttribute('data-label');
-            var currentValue = button.getAttribute('data-current-value');
-            var url = button.getAttribute('data-url');      // L'URL du controller
-            var fieldName = button.getAttribute('data-field-name'); // Le nom du paramètre (ex: newName)
+            //Extraire les infos des attributs data-* du bouton
+            var title = button.getAttribute('data-title');                  //Titre de la modale
+            var label = button.getAttribute('data-label');                  //Label de l'input
+            var currentValue = button.getAttribute('data-current-value');   //Valeur actuelle
+            var url = button.getAttribute('data-url');                      //URL du controller
+            var fieldName = button.getAttribute('data-field-name');         //Le nom du paramètre
 
-            // 3. Mettre à jour le contenu de la modale
-            var modalTitle = genericModal.querySelector('#modalTitle');
-            var modalLabel = genericModal.querySelector('#modalLabel');
-            var modalInput = genericModal.querySelector('#modalInput');
-            var modalForm = genericModal.querySelector('#modalForm');
+            //Mise à jour le contenu de la modale
+            var modalTitle = genericModal.querySelector('#modalTitle');     //Recupère le titre du modal
+            var modalLabel = genericModal.querySelector('#modalLabel');     //Recupère le label du modal
+            var modalInput = genericModal.querySelector('#modalInput');     //Recupère l'input du modal
+            var modalForm = genericModal.querySelector('#modalForm');       //Recupère l'action du formulaire du modal
 
-            modalTitle.textContent = title;
-            modalLabel.textContent = label;
-            modalInput.value = currentValue;
+            modalTitle.textContent = title;                                 //Affiche le titre adequat
+            modalLabel.textContent = label;                                 //Affiche le label adequat
+            modalInput.value = currentValue;                                //Affiche la valeur actuelle dans l'input
 
-            // Changer l'attribut 'name' de l'input pour qu'il corresponde à ce que le Controller attend
+            //Changer l'attribut 'name' de l'input pour qu'il corresponde à ce que le Controller attend
             modalInput.setAttribute('name', fieldName);
 
-            // Changer l'action du formulaire
+            //Changer l'action du formulaire
             modalForm.setAttribute('action', url);
         });
     </script>
