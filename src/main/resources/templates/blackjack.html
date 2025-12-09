@@ -198,13 +198,48 @@
 
         // Actions
         async function placeBet() {
-            const amount = document.getElementById('betInput').value;
-            await fetch('/api/game/blackjack/bet', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({idRoom: roomId, amount: amount})
-            });
-            refreshData();
+            const input = document.getElementById('betInput');
+            if (!input) return; 
+            
+            // On convertit la valeur en nombre entier
+            const amount = parseInt(input.value);
+            
+            const statusDiv = document.getElementById('gameStatus');
+
+            // --- VÉRIFICATION AJOUTÉE ICI ---
+            // Si ce n'est pas un nombre OU si c'est inférieur ou égal à 0
+            if (isNaN(amount) || amount <= 0) {
+                alert("⚠️ La mise doit être supérieure à 0 !");
+                return; // ON ARRÊTE TOUT, on n'envoie rien au serveur.
+            }
+            // -------------------------------
+
+            // On remet le statut en blanc avant de tenter
+            statusDiv.style.color = 'white';
+
+            try {
+                const response = await fetch('/api/game/blackjack/bet', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({idRoom: roomId, amount: amount})
+                });
+
+                if (response.ok) {
+                    refreshData();
+                    statusDiv.style.color = "white";
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+
+                    if (response.status === 400 || (errorData.message && errorData.message.includes("Solde"))) {
+                        alert("Solde insuffisant pour cette mise !");
+                    } else {
+                        alert("Erreur : " + (errorData.message || "Impossible de miser"));
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erreur de connexion au serveur.");
+            }
         }
 
         async function actionHit() {
