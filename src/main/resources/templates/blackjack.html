@@ -220,6 +220,25 @@
             });
             refreshData();
         }
+        
+        async function exitRoom() {
+            try {
+                // On envoie l'ID de la salle au serveur pour se désinscrire
+                await fetch('/api/game/blackjack/exit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'text/plain'}, // On envoie une simple chaîne
+                    body: roomId.toString() 
+                });
+                
+                // REDIRECTION VERS L'ACCUEIL
+                window.location.href = "/";
+                
+            } catch (e) {
+                console.error("Erreur lors de la sortie:", e);
+                // On redirige quand même pour ne pas bloquer l'utilisateur
+                window.location.href = "/";
+            }
+        }
 
         // Lancer le jeu
         startPolling();

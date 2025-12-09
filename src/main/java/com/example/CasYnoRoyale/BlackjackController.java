@@ -76,7 +76,7 @@ public class BlackjackController {
             if (!idTBlackjack.containsKey(r.getIdRoom())) {
                 idTBlackjack.put(r.getIdRoom(), new Blackjack());
             }
-            return "redirect:/games/blackjack?idRoom=" + roomCodeService.generateCode(r.getIdRoom();
+            return "redirect:/games/blackjack?idRoom=" + roomCodeService.generateCode(r.getIdRoom());
         }
 
         Room r = roomService.findRoomById(roomCodeService.decodeRoomId(idRoom));
@@ -101,11 +101,11 @@ public class BlackjackController {
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         try {
-            Long idRoom = Long.valueOf(payload.get("idRoom").toString());
+            //Long idRoom = Long.valueOf(payload.get("idRoom").toString());
             int amount = Integer.parseInt(payload.get("amount").toString());
             BigDecimal betAmount = BigDecimal.valueOf(amount);
 
-            Blackjack game = getBlackjack(idRoom);
+            Blackjack game = getBlackjack(roomCodeService.decodeRoomId(/*idRoom*/payload.get("idRoom").toString()));
             
             if (user.getBalance().compareTo(betAmount) >= 0) {
                 user.setBalance(user.getBalance().subtract(betAmount));
@@ -163,7 +163,7 @@ public class BlackjackController {
         AppUser user = (AppUser) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        Blackjack game = getBlackjack(idRoom);
+        Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         
         // CORRECTION 1 : Sécurité
         // Si le timer a déclenché la fin de la partie sans qu'une action "hit/stand" ne soit appelée
@@ -175,7 +175,7 @@ public class BlackjackController {
         Map<String, Object> state = game.getGameState(user);
         
         // On recharge depuis la BDD pour avoir le solde à jour (qui vient d'être sauvegardé juste au-dessus)
-        AppUser freshUser = userRepository.findById(user.getIdUser()).orElse(user);
+        AppUser freshUser = userRepository.findByUsername(user.getUsername());//.orElse(user);
         state.put("userBalance", freshUser.getBalance());
         
         if(!freshUser.getBalance().equals(user.getBalance())) {
