@@ -62,7 +62,7 @@
         </div>
 
     <script th:inline="javascript">
-        const roomId = [[${room.idRoom}]];
+        const roomId = /*[[${@roomCodeService.generateCode(room.idRoom)}]]*/ null;
         let refreshInterval = null;
         let lastStatus = "";
 
