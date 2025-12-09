@@ -2,332 +2,227 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>CasYno Royale - Blackjack</title>
+    <title>Blackjack Multiplayer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* --- STYLE SIMPLIFIÉ (Similaire à Roulette mais thème vert) --- */
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #1b5e20; /* Vert tapis */
-            color: white;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            background: rgba(0,0,0,0.4);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .game-board {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid #2e7d32;
-            min-height: 400px;
-            position: relative;
-        }
-
-        .hand-area {
-            min-height: 180px;
-            margin: 20px 0;
-        }
-
-        .cards-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .card-img {
-            width: 100px;
-            height: 145px;
-            border-radius: 8px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-            transition: transform 0.3s;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #1b5e20; color: white; text-align: center; margin: 0; padding: 20px; }
+        .top-bar { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; margin-bottom: 20px; }
         
-        /* Animation d'arrivée de carte */
-        .card-img.new {
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .controls {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 1.1em;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            margin: 5px;
-            color: white;
-            transition: 0.2s;
-        }
-
-        .btn-bet { background-color: #ffca28; color: #333; }
-        .btn-hit { background-color: #43a047; }
-        .btn-stand { background-color: #e53935; }
-        .btn-exit { background-color: #546e7a; font-size: 0.9em;}
+        /* Table de jeu */
+        .table-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        button:hover:not(:disabled) { transform: scale(1.05); filter: brightness(1.1); }
+        /* Zone Croupier */
+        .dealer-area { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; min-width: 300px; border: 2px solid #d4af37; }
+        
+        /* Zone Joueurs (Flex row pour les voir côte à côte) */
+        .players-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; }
+        
+        .player-seat { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; min-width: 200px; transition: 0.3s; position: relative; border: 2px solid transparent;}
+        .player-seat.my-seat { border-color: #ffca28; background: rgba(255, 202, 40, 0.1); }
+        .player-seat.active-turn { box-shadow: 0 0 15px #42a5f5; border-color: #42a5f5; transform: scale(1.05); }
 
-        .message-box {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #ffca28;
-            min-height: 30px;
-            margin-bottom: 10px;
-        }
+        .cards-container { display: flex; justify-content: center; gap: 5px; height: 100px; margin: 10px 0; }
+        .card-img { height: 90px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
 
-        /* Input de mise */
-        #betAmount {
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            width: 80px;
-            text-align: center;
-            font-size: 1.1em;
-        }
+        .timer-display { font-size: 2em; font-weight: bold; color: #ffca28; margin: 10px; }
+        
+        /* Contrôles */
+        .controls-area { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 15px; border-radius: 20px; z-index: 100; display: flex; gap: 10px; }
+        button { padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; border: none; font-size: 1em; }
+        .btn-hit { background: #4caf50; color: white; }
+        .btn-stand { background: #f44336; color: white; }
+        .btn-bet { background: #ffca28; color: black; }
+        
+        button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div>
-            Joueur : <strong th:text="${user.name}">Pseudo</strong>
-        </div>
-        <div>
-            Code de la partie: <span th:text="${@roomCodeService.generateCode(room.idRoom)}">0</span>
-        </div>
-        <div>
-            Solde : <strong id="userBalance" th:text="${user.balance}">1000</strong> €
-        </div>
+        <div>Joueur : <strong th:text="${user.name}"></strong></div>
+        <div> Code de la partie: <span th:text="${@roomCodeService.generateCode(room.idRoom)}">0</span></div>
+        <div>Solde : <strong id="balanceDisplay" th:text="${user.balance}"></strong> €</div>
         <button class="btn-exit" onclick="exitRoom()">Quitter la table</button>
     </div>
 
-    <div class="game-board">
-        
-        <div class="hand-area">
+    <div id="gameStatus" style="font-size: 1.2em; margin-bottom: 5px;">En attente...</div>
+    <div id="timerDisplay" class="timer-display">--</div>
+
+    <div class="table-container">
+        <div class="dealer-area">
             <h3>Croupier <span id="dealerScore"></span></h3>
-            <div id="dealerCards" class="cards-container">
-                <div style="opacity: 0.5; font-style: italic;">En attente de mise...</div>
-            </div>
+            <div id="dealerCards" class="cards-container"></div>
         </div>
 
-        <hr style="border-color: rgba(255,255,255,0.1)">
-
-        <div class="hand-area">
-            <h3>Votre Main <span id="playerScore"></span></h3>
-            <div id="playerCards" class="cards-container">
-                </div>
-        </div>
-
-        <div id="gameMessage" class="message-box">Placez votre mise pour commencer.</div>
-
-        <div class="controls">
-            
-            <div id="bettingControls">
-                <input type="number" id="betAmount" value="10" min="1" max="1000">
-                <button class="btn-bet" onclick="placeBet()">Miser</button>
+        <div id="playersContainer" class="players-row">
             </div>
-
-            <div id="gamingControls" style="display: none;">
-                <button class="btn-hit" onclick="actionHit()">Tirer (Hit)</button>
-                <button class="btn-stand" onclick="actionStand()">Rester (Stand)</button>
-            </div>
-
-             <div id="restartControls" style="display: none;">
-                <button class="btn-bet" onclick="resetUI()">Nouvelle Manche</button>
-            </div>
-        </div>
     </div>
 
+    <div class="controls-area" id="controlsBar">
+        </div>
+
     <script th:inline="javascript">
-        /* Récupération de l'ID de salle depuis Thymeleaf */
         const roomId = [[${room.idRoom}]];
-        
-        // --- Fonctions d'API ---
+        let refreshInterval = null;
+        let lastStatus = "";
 
-        // 1. Miser
-        async function placeBet() {
-            const amount = document.getElementById('betAmount').value;
-            
-            if(!amount || amount <= 0) {
-                alert("Mise invalide");
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/game/blackjack/bet', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        idRoom: roomId,
-                        amount: amount
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    updateUI(data.gameState);
-                    updateBalance(data.nouveauSolde); // Le controleur ne renvoie pas toujours le solde ici selon votre implémentation, attention
-                } else {
-                    alert("Erreur ou solde insuffisant");
-                }
-            } catch (e) {
-                console.error(e);
-            }
+        // Démarrage de la boucle de rafraichissement (toutes les 1s)
+        function startPolling() {
+            refreshData(); // Appel immédiat
+            refreshInterval = setInterval(refreshData, 1000);
         }
 
-        // 2. Tirer (Hit)
-        async function actionHit() {
+        async function refreshData() {
             try {
-                const response = await fetch('/api/game/blackjack/hit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(roomId) // Le controller attend juste un Long
-                });
-                const data = await response.json();
-                updateUI(data.gameState);
-            } catch (e) { console.error(e); }
-        }
-
-        // 3. Rester (Stand)
-        async function actionStand() {
-            try {
-                const response = await fetch('/api/game/blackjack/stand', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const response = await fetch('/api/game/blackjack/refreshData', {
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(roomId)
                 });
                 const data = await response.json();
-                updateBalance(data.nouveauSolde);
-                updateUI(data.gameState);
-            } catch (e) { console.error(e); }
+                renderGame(data);
+            } catch (e) { console.error("Erreur polling", e); }
         }
 
-        // 4. Quitter
-        async function exitRoom() {
-            await fetch('/api/game/blackjack/exit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(roomId)
-            });
-            window.location.href = "/";
-        }
+        function renderGame(data) {
+            // 1. Infos Globales
+            document.getElementById('balanceDisplay').textContent = data.userBalance;
+            document.getElementById('gameStatus').textContent = "État : " + data.status;
+            
+            // Timer
+            const timerDiv = document.getElementById('timerDisplay');
+            if (data.status === 'BETTING') {
+                timerDiv.textContent = data.timer + " s";
+                timerDiv.style.color = data.timer < 5 ? 'red' : '#ffca28';
+            } else {
+                timerDiv.textContent = ""; 
+            }
 
+            // 2. Croupier
+            const dealerDiv = document.getElementById('dealerCards');
+            dealerDiv.innerHTML = '';
+            data.dealer.cards.forEach(c => dealerDiv.appendChild(createCardImg(c)));
+            document.getElementById('dealerScore').textContent = "(" + data.dealer.score + ")";
 
-        // --- Gestion de l'Interface (DOM) ---
+            // 3. Joueurs
+            const playersDiv = document.getElementById('playersContainer');
+            playersDiv.innerHTML = '';
+            
+            // On vérifie si NOUS avons déjà misé pour afficher l'input de mise
+            let iHaveBet = false;
 
-        function updateUI(gameState) {
-            // 1. Mettre à jour les messages
-            const msgBox = document.getElementById('gameMessage');
-            msgBox.textContent = gameState.message;
-
-            // 2. Afficher les cartes Joueur
-            renderCards('playerCards', gameState.playerCards);
-            document.getElementById('playerScore').textContent = "(" + gameState.playerValue + ")";
-
-            // 3. Afficher les cartes Croupier
-            renderCards('dealerCards', gameState.dealerCards);
-            document.getElementById('dealerScore').textContent = "(" + gameState.dealerValue + ")";
-
-            // 4. Gérer l'affichage des boutons selon le statut
-            const status = gameState.status;
-            const betDiv = document.getElementById('bettingControls');
-            const gameDiv = document.getElementById('gamingControls');
-            const restartDiv = document.getElementById('restartControls');
-
-            // Cache tout d'abord
-            betDiv.style.display = 'none';
-            gameDiv.style.display = 'none';
-            restartDiv.style.display = 'none';
-
-            if (status === 'BETTING') {
-                betDiv.style.display = 'block';
-                // Nettoyer le tapis visuellement si on revient au début
-                document.getElementById('dealerCards').innerHTML = '<div style="opacity:0.5">Placez votre mise...</div>';
-                document.getElementById('playerCards').innerHTML = '';
-                document.getElementById('playerScore').textContent = '';
-                document.getElementById('dealerScore').textContent = '';
-            } 
-            else if (status === 'ONGOING' || status === 'PLAYER_TURN') {
-                gameDiv.style.display = 'block';
-            } 
-            else {
-                // FINISHED, PLAYER_WIN, DEALER_WIN, etc.
-                restartDiv.style.display = 'block';
+            data.players.forEach(p => {
+                if (p.isMe) iHaveBet = true;
                 
-                // Couleur du message selon le résultat
-                if(status.includes('WIN') && !status.includes('DEALER')) {
-                    msgBox.style.color = '#69f0ae'; // Vert clair victoire
-                } else if (status.includes('DEALER_WIN')) {
-                    msgBox.style.color = '#ff8a80'; // Rouge défaite
+                const seat = document.createElement('div');
+                seat.className = `player-seat ${p.isMe ? 'my-seat' : ''} ${p.isTurn ? 'active-turn' : ''}`;
+                
+                let html = `<div><strong>${p.name}</strong></div>`;
+                html += `<div style="font-size:0.8em">Mise: ${p.bet}€</div>`;
+                html += `<div class="cards-container">`;
+                p.cards.forEach(c => {
+                    // Construction chemin image (suppose Card.imagePath ou rank_suit)
+                    const src = '/img/card/' + (c.imagePath ? c.imagePath : (c.rank + '_' + c.suit + '.png'));
+                    html += `<img src="${src}" class="card-img">`;
+                });
+                html += `</div>`;
+                html += `<div>Score: ${p.score}</div>`;
+                html += `<div style="font-weight:bold; color:${getStatusColor(p.status)}">${p.status}</div>`;
+                
+                seat.innerHTML = html;
+                playersDiv.appendChild(seat);
+            });
+
+            // 4. Contrôles (Boutons)
+            renderControls(data, iHaveBet);
+        }
+
+        function renderControls(data, iHaveBet) {
+            const controls = document.getElementById('controlsBar');
+
+            // --- CAS 1 : PHASE DE MISE ---
+            if (data.status === 'BETTING') {
+                if (!iHaveBet && data.timer > 0) {
+                    // LA CORRECTION EST ICI : 
+                    // On vérifie si l'input "betInput" existe déjà.
+                    // S'il n'existe PAS, on le crée. S'il existe, on ne touche à rien.
+                    if (!document.getElementById('betInput')) {
+                        controls.innerHTML = `
+                            <input type="number" id="betInput" value="10" min="10" style="width:60px; padding:5px;">
+                            <button class="btn-bet" onclick="placeBet()">MISER</button>
+                        `;
+                    }
                 } else {
-                    msgBox.style.color = '#fff';
+                    // Si on a déjà misé ou que le temps est fini, on affiche le message d'attente
+                    // Ici on peut écraser le HTML car on n'a plus besoin de l'input
+                    controls.innerHTML = `<span style="color:white">En attente des autres joueurs...</span>`;
+                }
+            } 
+            
+            // --- CAS 2 : TOUR DE JEU ---
+            else if (data.status === 'PLAYER_TURN') {
+                // Ici on écrase le HTML à chaque fois car ce sont des boutons, pas de texte à saisir
+                // (Optimisation possible : vérifier si les boutons existent déjà, mais moins critique)
+                if (data.isMyTurn) {
+                    // On vérifie juste si on n'a pas déjà les boutons pour éviter le clignotement
+                    if (!document.querySelector('.btn-hit')) {
+                        controls.innerHTML = `
+                            <button class="btn-hit" onclick="actionHit()">TIRER</button>
+                            <button class="btn-stand" onclick="actionStand()">RESTER</button>
+                        `;
+                    }
+                } else {
+                    controls.innerHTML = `<span style="color:#aaa">Tour d'un autre joueur...</span>`;
                 }
             }
-        }
-
-        function renderCards(containerId, cards) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
             
-            if(!cards) return;
-
-            cards.forEach(card => {
-                const img = document.createElement('img');
-                // IMPORTANT : Assurez-vous que card.imagePath existe dans votre objet Java Card
-                // Sinon utilisez card.toString() ou construisez le chemin ici
-                img.src = '/img/card/' + (card.imagePath ? card.imagePath : 'back.png'); 
-                img.className = 'card-img new';
-                container.appendChild(img);
-            });
-        }
-
-        function updateBalance(solde) {
-            if (solde !== undefined && solde !== null) {
-                document.getElementById('userBalance').textContent = solde;
+            // --- CAS 3 : FIN DE MANCHE ---
+            else if (data.status === 'FINISHED') {
+                 controls.innerHTML = `<span style="color:#ffca28; font-weight:bold">Manche terminée. Prochaine dans quelques secondes...</span>`;
             }
         }
 
-        function resetUI() {
-            // Pour relancer, on recharge simplement la page ou on appelle une API "reset"
-            // Ici, le plus simple avec votre modèle actuel est de remettre l'UI en mode pari
-            // Le backend BlackjackGame a une méthode startNewGame() appelée implicitement ?
-            // Si non, le mieux est de recharger la page pour être propre :
-            // window.location.reload(); 
-            
-            // OU BIEN, juste cacher les boutons et montrer la mise :
-            document.getElementById('bettingControls').style.display = 'block';
-            document.getElementById('restartControls').style.display = 'none';
-            document.getElementById('gameMessage').textContent = "Nouvelle manche. Misez !";
-            document.getElementById('dealerCards').innerHTML = '';
-            document.getElementById('playerCards').innerHTML = '';
-            document.getElementById('dealerScore').textContent = '';
-            document.getElementById('playerScore').textContent = '';
+        function createCardImg(card) {
+            const img = document.createElement('img');
+            img.className = 'card-img';
+            img.src = '/img/card/' + (card.imagePath ? card.imagePath : (card.rank + '_' + card.suit + '.png'));
+            return img;
         }
+
+        function getStatusColor(status) {
+            if(status.includes('WON')) return '#69f0ae';
+            if(status === 'LOST' || status === 'BUSTED') return '#ff5252';
+            if(status === 'PUSH') return '#ffca28';
+            return 'white';
+        }
+
+        // Actions
+        async function placeBet() {
+            const amount = document.getElementById('betInput').value;
+            await fetch('/api/game/blackjack/bet', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({idRoom: roomId, amount: amount})
+            });
+            refreshData();
+        }
+
+        async function actionHit() {
+            await fetch('/api/game/blackjack/hit', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(roomId)
+            });
+            refreshData();
+        }
+
+        async function actionStand() {
+            await fetch('/api/game/blackjack/stand', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(roomId)
+            });
+            refreshData();
+        }
+
+        // Lancer le jeu
+        startPolling();
 
     </script>
 </body>
