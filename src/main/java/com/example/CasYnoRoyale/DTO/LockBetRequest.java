@@ -7,10 +7,9 @@ import lombok.Setter;
 import java.util.List;
 
 public class LockBetRequest {
-
     @Getter
     @Setter
-    private Long idRoom;
+    private String idRoom;
     @Getter
     @Setter
     private List<BetRequest> bets;

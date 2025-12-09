@@ -34,10 +34,10 @@ public class AppUserService {
             u.setName("Bernard");
             u.setUsername("bernard111");
             u.setPassword("password");
-            
+
                     System.out.println("creation de bernard");
 
-           
+
         }
         else System.out.println("Bernard existe déjà");
         u.setBalance(new BigDecimal(100));

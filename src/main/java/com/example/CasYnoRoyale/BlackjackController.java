@@ -20,6 +20,7 @@ import com.example.CasYnoRoyale.repository.GameRepository;
 import com.example.CasYnoRoyale.repository.RoomRepository;
 import com.example.CasYnoRoyale.service.AppUserService;
 import com.example.CasYnoRoyale.service.GameService;
+import com.example.CasYnoRoyale.service.RoomCodeService;
 import com.example.CasYnoRoyale.service.RoomService;
 
 import jakarta.servlet.http.HttpSession;
@@ -33,18 +34,18 @@ public class BlackjackController {
     private final GameService gameService;
     private final AppUserRepository userRepository;
     private final AppUserService userService;
-
+    private final RoomCodeService roomCodeService;
+    // Stockage de l'instance de jeu par ID de salle, comme dans RouletteController
     private HashMap<Long, Blackjack> idTBlackjack = new HashMap<>();
 
-    public BlackjackController(AppUserService userService, AppUserRepository userRepository, 
-                               RoomRepository roomRepository, RoomService roomService, 
-                               GameRepository gameRepository, GameService gameService) {
+    public BlackjackController(AppUserService userService, AppUserRepository userRepository, RoomRepository roomRepository, RoomService roomService, RoomCodeService roomCodeService, GameRepository gameRepository, GameService gameService) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
         this.roomService = roomService;
         this.gameRepository = gameRepository;
         this.gameService = gameService;
+        this.roomCodeService = roomCodeService;
     }
 
     public Blackjack getBlackjack(Long idRoom) {
@@ -64,21 +65,21 @@ public class BlackjackController {
     }
 
     @GetMapping("/games/blackjack")
-    public String blackjackPage(Model model, Long idRoom, HttpSession session) {
+    public String blackjackPage(Model model, String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
         }
 
         if (idRoom == null) {
-            Room r = roomService.joinRoom(idRoom, user, gameService.getBlackjack());
+            Room r = roomService.joinRoom(null, user, gameService.getBlackjack());
             if (!idTBlackjack.containsKey(r.getIdRoom())) {
                 idTBlackjack.put(r.getIdRoom(), new Blackjack());
             }
-            return "redirect:/games/blackjack?idRoom=" + r.getIdRoom();
+            return "redirect:/games/blackjack?idRoom=" + roomCodeService.generateCode(r.getIdRoom();
         }
 
-        Room r = roomService.findRoomById(idRoom);
+        Room r = roomService.findRoomById(roomCodeService.decodeRoomId(idRoom));
         model.addAttribute("user", user);
         model.addAttribute("room", r);
         
@@ -86,7 +87,7 @@ public class BlackjackController {
     }
 
     @PostMapping("/api/game/blackjack/exit")
-    public ResponseEntity<Void> exitBlackjack(@RequestBody Long idRoom, HttpSession session) {
+    public ResponseEntity<Void> exitBlackjack(@RequestBody String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         
@@ -126,11 +127,11 @@ public class BlackjackController {
     }
 
     @PostMapping("/api/game/blackjack/hit")
-    public ResponseEntity<Map<String, Object>> playerHit(@RequestBody Long idRoom, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> playerHit(@RequestBody String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        Blackjack game = getBlackjack(idRoom);
+        Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         game.hit(user); 
         
         // Si le hit provoque la fin de la partie (ex: tout le monde a bust ou fini), on sauvegarde
@@ -142,11 +143,11 @@ public class BlackjackController {
     }
 
     @PostMapping("/api/game/blackjack/stand")
-    public ResponseEntity<Map<String, Object>> playerStand(@RequestBody Long idRoom, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> playerStand(@RequestBody String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        Blackjack game = getBlackjack(idRoom);
+        Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         game.stand(user);
         
         // CORRECTION 1 : Si le jeu est FINI, on sauvegarde tout le monde
@@ -158,7 +159,7 @@ public class BlackjackController {
     }
 
     @PostMapping("/api/game/blackjack/refreshData")
-    public ResponseEntity<Map<String, Object>> refreshData(HttpSession session, @RequestBody Long idRoom) {
+    public ResponseEntity<Map<String, Object>> refreshData(HttpSession session, @RequestBody String idRoom) {
         AppUser user = (AppUser) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 

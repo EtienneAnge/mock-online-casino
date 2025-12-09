@@ -336,7 +336,19 @@
             </p>
             <button class="btn-play" onclick="window.location.href = '/games/blackjack';">Jouer maintenant</button>
         </div>
+
+        <div class="game-card">
+            <div class="game-icon">👯‍♂️</div>
+            <h2>Jouer avec des amis</h2>
+            <p>Pour plus de fun et de jeu, jouez avec vos amis et montrez-leur que vous êtes le meilleur !</p>
+            <input type="text" id="roomCodeInput" class="form-control" placeholder="Code de la room" aria-label="Code de la room" aria-describedby="basic-addon2">
+            <button class="btn-play" onclick="joinRoom()">Jouer maintenant</button>
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+                <span th:text="${error}"></span>
+            </div>
+        </div>
     </div>
+
 
     <div class="features">
         <div class="feature">
@@ -420,6 +432,16 @@
                 event.target.style.display = 'none';
             }
         }
+        function joinRoom() {
+        var code = document.getElementById("roomCodeInput").value;
+
+        if (code.trim() !== "") {
+            window.location.href = '/games?idRoom=' + encodeURIComponent(code);
+        } else {
+            alert("Veuillez entrer un code de room !");
+        }
+    }
+
     </script>
 </body>
 

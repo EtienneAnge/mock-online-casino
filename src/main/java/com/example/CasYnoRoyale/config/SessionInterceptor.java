@@ -12,7 +12,7 @@ public class SessionInterceptor implements HandlerInterceptor {
         
         // Récupérer la session existante (false = ne pas en créer une si elle n'existe pas)
         HttpSession session = request.getSession(false); 
-
+        System.out.println(session);
         // Vérifie si l'utilisateur est authentifié : la session existe ET l'attribut "user" est présent
         boolean isAuthenticated = (session != null && session.getAttribute("user") != null);
 
@@ -23,7 +23,7 @@ public class SessionInterceptor implements HandlerInterceptor {
             
             // Effectue la redirection vers la page de connexion
             // request.getContextPath() garantit que le chemin absolu est correct (ex: /CasYnoRoyale/login)
-            response.sendRedirect(request.getContextPath() + "/login"); 
+            response.sendRedirect(request.getContextPath() + "/login");
             
             // Retourne false pour arrêter l'exécution du contrôleur initialement ciblé
             return false;

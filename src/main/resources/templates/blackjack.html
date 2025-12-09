@@ -40,8 +40,9 @@
 
     <div class="top-bar">
         <div>Joueur : <strong th:text="${user.name}"></strong></div>
-        <div>Salle N° <span th:text="${room.idRoom}"></span></div>
+        <div> Code de la partie: <span th:text="${@roomCodeService.generateCode(room.idRoom)}">0</span></div>
         <div>Solde : <strong id="balanceDisplay" th:text="${user.balance}"></strong> €</div>
+        <button class="btn-exit" onclick="exitRoom()">Quitter la table</button>
     </div>
 
     <div id="gameStatus" style="font-size: 1.2em; margin-bottom: 5px;">En attente...</div>

@@ -7,10 +7,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.CasYnoRoyale.database.AppUser;
+import com.example.CasYnoRoyale.model.ChartDataDTO;
 import com.example.CasYnoRoyale.repository.AppUserRepository;
+import com.example.CasYnoRoyale.service.StatsService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -19,6 +22,9 @@ public class MyAccountController {
 
     @Autowired
     AppUserRepository userRepository;
+
+    @Autowired
+    StatsService statsService;
 
     @GetMapping("/myaccount")
     public String myaccount() {
@@ -81,7 +87,7 @@ public class MyAccountController {
             return "redirect:/myaccount";
         }
 
-        user.setName(newPassword);
+        user.setPassword(newPassword);
 
         userRepository.save(user);
 
@@ -93,21 +99,44 @@ public class MyAccountController {
     public String addBalance(RedirectAttributes model,
                             HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
-        BigDecimal maxBalance = new BigDecimal(100.0);
+        BigDecimal maxBalance = new BigDecimal(1500.0);
+        BigDecimal addingBalanceValue = new BigDecimal(100.0);
+        BigDecimal newBalanceValue;
         
         if (user == null) {
             return "redirect:/login";
         }
 
         if (user.getBalance().compareTo(maxBalance) >= 0) {
-            model.addFlashAttribute("error", "Vous avez déjà 100 de crédits. Dépensez les !");
+            model.addFlashAttribute("error", "Vous avez déjà 1500 de crédits. Dépensez les !");
         } else {
-            user.setBalance(maxBalance);
-            userRepository.save(user);
+            newBalanceValue = user.getBalance().add(addingBalanceValue);
+            if (newBalanceValue.compareTo(maxBalance) >= 0) {
+                user.setBalance(maxBalance);
+            } else {
+                user.setBalance(newBalanceValue);
+            }
 
+            userRepository.save(user);
             model.addFlashAttribute("message", "Solde mis à jour !");
         }
 
         return "redirect:/myaccount";
+    }
+
+
+
+    @GetMapping("/api/stats/balance")
+    @ResponseBody
+    public ChartDataDTO getTransactions(HttpSession session,
+                                        @RequestParam(required = false) Long gameId) {
+        AppUser user = (AppUser) session.getAttribute("user");
+
+        if (user == null) {
+            return null ;
+        }
+        System.out.println("C'est ok");
+        return statsService.getEvolutvoidionData(user, gameId);
+
     }
 }

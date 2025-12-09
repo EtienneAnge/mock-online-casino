@@ -5,13 +5,18 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Data
 public class Transaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idTrans;
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID idTrans;
 
     private BigDecimal montant;
     private LocalDateTime date;
