@@ -1,4 +1,3 @@
-
 package com.example.CasYnoRoyale.roulette;
 
 import java.math.BigDecimal;
@@ -8,11 +7,10 @@ import java.util.List;
 
 import com.example.CasYnoRoyale.database.AppUser;
 public class BetRequest {
-    private Bet.BetType betType;       // Mappe "betType"
-    private Integer selectionValue; // Mappe "selectionValue"
-    private BigDecimal amount;      // Mappe "amount"
+    private Bet.BetType betType;       
+    private Integer selectionValue; 
+    private BigDecimal amount;      
 
-    // Constructeurs, Getters et Setters (ou utilisez Lombok @Data)
     public Bet.BetType getBetType() { return betType; }
     public void setBetType(Bet.BetType betType) { this.betType = betType; }
 

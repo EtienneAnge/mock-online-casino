@@ -1,4 +1,3 @@
-// --- CONFIGURATION ---
 const board = document.getElementById('board');
 const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 let currentBets = [];
@@ -8,43 +7,37 @@ const idRoomSpan = document.getElementById("idRoom");
 idRoomSpan.innerHTML=idRoom;
 let moneyRemaining = 0;
 
-let timerInterval = null; // Variable globale pour stocker l'intervalle
+let timerInterval = null; 
 
+refreshData();
 function startTimer(targetIsoDate) {
-    // 1. Nettoyer l'ancien timer s'il existe pour éviter les conflits
+
     if (timerInterval) clearInterval(timerInterval);
 
     const timerElement = document.getElementById('timer');
     const targetTime = new Date(targetIsoDate).getTime();
 
-    // Fonction de mise à jour immédiate
     const update = () => {
         const now = new Date().getTime();
         const distance = targetTime - now;
 
-        // Si le temps est écoulé
         if (distance <= 0) {
             clearInterval(timerInterval);
             timerElement.innerText = "00:00";
-            timerElement.classList.add('timer-urgent'); // Effet visuel
-            
+            timerElement.classList.add('timer-urgent'); 
+
             refreshData();
-     
-            // OPTIONNEL : Désactiver les boutons ou lancer l'animation ici
-            // document.getElementById('spinButton').disabled = true;
+
             return;
         }
 
-        // Calcul des minutes et secondes
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        // Formatage avec le zéro devant (ex: 09:05)
         timerElement.innerText = 
             (minutes < 10 ? "0" + minutes : minutes) + ":" + 
             (seconds < 10 ? "0" + seconds : seconds);
 
-        // Ajout classe urgent si < 10 secondes
         if (distance < 10000) {
             timerElement.classList.add('timer-urgent');
         } else {
@@ -52,32 +45,29 @@ function startTimer(targetIsoDate) {
         }
     };
 
-    // Lancer immédiatement puis chaque seconde
     update(); 
     timerInterval = setInterval(update, 1000);
 }
-// --- GÉNÉRATION DU PLATEAU (GRID) ---
-// La grille fait 12 rangées de hauteur (36 numéros / 3 colonnes)
 
 for (let row = 0; row < 12; row++) {
-    // Le numéro de départ de la rangée (ex: 1, 4, 7...)
+
     let numStart = (row * 3) + 1;
 
-    // 1. COLONNE "CHANCES SIMPLES" (Tout à gauche) - Prend 2 rangées de hauteur à chaque fois
-    // Ordre classique tapis : 1-18, Pair, Rouge, Noir, Impair, 19-36
     if (row % 2 === 0) {
         let sideBetDiv = document.createElement('div');
         sideBetDiv.className = 'cell side-bet span-row-2 drop-zone';
-        
+
         if(row === 0) { setText(sideBetDiv, "1 - 18"); setBetData(sideBetDiv, "LOW_HIGH", 0); }
         if(row === 2) { setText(sideBetDiv, "PAIR");   setBetData(sideBetDiv, "PARITY", 0); }
         if(row === 4) { 
             sideBetDiv.innerHTML = "<div class='diamond-red'></div>"; 
-            setBetData(sideBetDiv, "COLOR", 0); // 0 = Rouge
+            setBetData(sideBetDiv, "COLOR", 0); 
+
         }
         if(row === 6) { 
             sideBetDiv.innerHTML = "<div class='diamond-black'></div>"; 
-            setBetData(sideBetDiv, "COLOR", 1); // 1 = Noir
+            setBetData(sideBetDiv, "COLOR", 1); 
+
         }
         if(row === 8) { setText(sideBetDiv, "IMPAIR"); setBetData(sideBetDiv, "PARITY", 1); }
         if(row === 10){ setText(sideBetDiv, "19 - 36");setBetData(sideBetDiv, "LOW_HIGH", 1); }
@@ -85,7 +75,6 @@ for (let row = 0; row < 12; row++) {
         board.appendChild(sideBetDiv);
     }
 
-    // 2. COLONNE "DOUZAINES" - Prend 4 rangées
     if (row % 4 === 0) {
         let dozenDiv = document.createElement('div');
         dozenDiv.className = 'cell side-bet span-row-4 drop-zone';
@@ -95,24 +84,21 @@ for (let row = 0; row < 12; row++) {
         board.appendChild(dozenDiv);
     }
 
-    // 3. LES 3 NUMÉROS DE LA RANGÉE
     for (let i = 0; i < 3; i++) {
         let currentNum = numStart + i;
         let numDiv = document.createElement('div');
         numDiv.className = 'cell drop-zone';
         numDiv.innerText = currentNum;
-        
+
         if (redNumbers.includes(currentNum)) numDiv.classList.add('num-red');
         else numDiv.classList.add('num-black');
 
-        setBetData(numDiv, "STRAIGHT_UP", currentNum); // Val = le numéro lui-même
-        
+        setBetData(numDiv, "STRAIGHT_UP", currentNum); 
+
         board.appendChild(numDiv);
     }
 }
 
-// 4. LIGNE DU BAS : LES COLONNES (2 TO 1)
-// On ajoute 2 cellules vides pour l'alignement à gauche
 board.appendChild(createEmpty()); 
 board.appendChild(createEmpty());
 
@@ -120,26 +106,24 @@ for(let c = 0; c < 3; c++) {
     let colDiv = document.createElement('div');
     colDiv.className = 'cell side-bet drop-zone';
     colDiv.innerText = "2 pour 1";
-    // Colonne 1 (1,4,7..) est l'index 0 dans l'enum Java
+
     setBetData(colDiv, "COLUMN", c); 
     board.appendChild(colDiv);
 }
 
-// --- UTILITAIRES ---
 function setText(el, text) { el.innerText = text; }
 function createEmpty() { let d = document.createElement('div'); d.style.border='none'; return d; }
 
-// Configure les attributs data pour correspondre à l'Enum Java
 function setBetData(element, type, val) {
-    element.dataset.type = type; // ex: COLOR
-    element.dataset.val = val;   // ex: 0
+    element.dataset.type = type; 
+
+    element.dataset.val = val;   
+
 }
 
-// --- LOGIQUE DRAG & DROP ---
 let draggedAmount = 0;
 let draggedClass = "";
 
-// 1. Initialiser les jetons
 document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('dragstart', (e) => {
         draggedAmount = parseInt(e.target.dataset.amount);
@@ -149,16 +133,14 @@ document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('dragend', (e) => e.target.style.opacity = "1");
 });
 
-// 2. Initialiser les zones de dépôt (les cellules créées dynamiquement + le 0 statique)
-// On utilise un setTimeout pour s'assurer que le DOM est généré
 setTimeout(() => {
     document.querySelectorAll('.drop-zone').forEach(zone => {
-        zone.addEventListener('dragover', (e) => e.preventDefault()); // Autoriser le drop
-        
+        zone.addEventListener('dragover', (e) => e.preventDefault()); 
+
         zone.addEventListener('dragenter', (e) => {
             e.target.style.boxShadow = "inset 0 0 10px gold";
         });
-        
+
         zone.addEventListener('dragleave', (e) => {
             e.target.style.boxShadow = "none";
         });
@@ -166,24 +148,23 @@ setTimeout(() => {
         zone.addEventListener('drop', (e) => {
             e.preventDefault();
             e.target.style.boxShadow = "none";
-            
-            // Récupérer les infos du pari
+
             let betType = e.target.dataset.type;
             let betVal = e.target.dataset.val;
 
-            if(!betType) return; // Sécurité
+            if(!betType) return; 
+
             if(draggedAmount > moneyRemaining) return;
             placeBet(betType, betVal, draggedAmount);
 
-            // Ajouter visuel
             let visualChip = document.createElement('div');
             visualChip.className = `chip placed-chip ${draggedClass}`;
             visualChip.innerText = draggedAmount;
-            // Position aléatoire légère
+
             let rx = Math.floor(Math.random() * 10) - 5;
             let ry = Math.floor(Math.random() * 10) - 5;
             visualChip.style.transform = `translate(${rx}px, ${ry}px)`;
-            
+
             e.target.appendChild(visualChip);
         });
     });
@@ -192,8 +173,10 @@ setTimeout(() => {
 function placeBet(type, val, amount) {
     currentBets = [];
     currentBets.push({
-        betType: type,          // Pour mapper avec Enum Java
-        selectionValue: parseInt(val), // 0 ou 1, ou le numéro
+        betType: type,          
+
+        selectionValue: parseInt(val), 
+
         amount: amount
     });
     const requestBody = {
@@ -208,15 +191,11 @@ function placeBet(type, val, amount) {
 .then(data => {
 
         refreshData();
-    
-       
-   
+
     }).catch(error => console.error('Erreur:', error));
 
     console.log("Pari ajouté : ", currentBets[currentBets.length-1]);
 }
-
-
 
 function clearBets() {
     currentBets = [];
@@ -225,7 +204,7 @@ function clearBets() {
 }
 
 function cancelBets() {
-    
+
     fetch('/api/game/roulette/betcanceled', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -246,22 +225,17 @@ function refreshData(){
         body: JSON.stringify(idRoom)
     }).then(response => response.json()).then(data => {
 
-
-        // 1. Mise à jour du solde (déjà existant)
         if(data.nouveauSolde !== undefined) {
              document.getElementById('mon-solde').innerText = data.nouveauSolde;
              moneyRemaining = data.nouveauSolde;
         }
 
-        // 2. Mise à jour de l'historique
         if (data.historique) {
             updateHistoryUI(data.historique);
         }
 
-        // 3. : Mise à jour du minuteur ---
         if (data.prochainTirage) {
-            // data.prochainTirage doit être au format ISO (ex: "2023-10-27T10:15:30Z")
-            // Spring Boot (Jackson) le fait généralement par défaut pour ZonedDateTime
+
             startTimer(data.prochainTirage);
         }
 
@@ -270,7 +244,7 @@ function refreshData(){
         }
     })
     .catch(error => console.error('Erreur:', error));
-  
+
 }
 
 function tirage(t){
@@ -302,54 +276,41 @@ document.getElementById("spinButton").addEventListener('click',() => {
         refreshData();
     });
 });
-    
 
 function annimationRoulette(){
-    // Animation de la roue (Simulation)
+
     let wheel = document.getElementById('roulettePng');
     let currentRot = parseFloat(wheel.style.transform.replace(/[^0-9.]/g, '') || 0);
     wheel.style.transform = `rotate(${currentRot + 720 + Math.random()*360}deg)`;
 
 }
 
-// scriptRoulette.js
-
-// Fonction utilitaire pour connaître la couleur d'un numéro
 function getNumberColor(number) {
     const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-    
+
     if (number === 0) return 'ball-green';
     if (redNumbers.includes(number)) return 'ball-red';
     return 'ball-black';
 }
 
-
-
 function updateHistoryUI(historiqueNumbers) {
     const container = document.getElementById('history-container');
-    container.innerHTML = ''; // On vide l'historique actuel pour le recréer proprement
+    container.innerHTML = ''; 
 
-    // On parcourt la liste reçue du serveur
-    // On peut inverser la boucle si on veut le plus récent en premier, 
-    // ou laisser tel quel selon le CSS (flex-direction: row-reverse)
     historiqueNumbers.forEach(num => {
         const ball = document.createElement('div');
-        
-        // Ajout des classes CSS
+
         ball.classList.add('history-ball');
-        ball.classList.add(getNumberColor(num)); // Ajoute ball-red, ball-black ou ball-green
-        
+        ball.classList.add(getNumberColor(num)); 
+
         ball.innerText = num;
-        
-        // Ajout au conteneur
+
         container.appendChild(ball);
     });
 }
 
-// Appeler refreshData au chargement de la page pour voir l'historique existant
 document.addEventListener('DOMContentLoaded', () => {
     refreshData();
     addCodeRoom();
-    // Optionnel : Lancer un rafraichissement automatique toutes les 5 secondes
-    // setInterval(refreshData, 5000); 
+
 });
