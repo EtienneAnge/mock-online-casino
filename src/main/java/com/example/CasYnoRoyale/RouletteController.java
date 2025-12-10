@@ -5,14 +5,16 @@ import com.example.CasYnoRoyale.service.*;
 
 import com.example.CasYnoRoyale.database.Game;
 import com.example.CasYnoRoyale.repository.GameRepository;
-import com.example.CasYnoRoyale.service.GameService;
 import com.example.CasYnoRoyale.database.Room;
 import com.example.CasYnoRoyale.database.AppUser;
 import com.example.CasYnoRoyale.repository.RoomRepository;
+import com.example.CasYnoRoyale.repository.TransactionRepository;
 import com.example.CasYnoRoyale.repository.AppUserRepository;
 import com.example.CasYnoRoyale.roulette.Bet;
 import com.example.CasYnoRoyale.roulette.Roulette;
 import jakarta.servlet.http.HttpSession;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import com.example.CasYnoRoyale.roulette.BetRequest;
 
@@ -48,9 +50,11 @@ public class RouletteController {
     private final AppUserService userService;
     private final RoomCodeService roomCodeService;
     private HashMap<Long, Roulette> idRoulette = new HashMap<>();
+    private final TransactionRepository transactionRepository;
 
-    public RouletteController(AppUserService userService, AppUserRepository userRepository, RoomRepository roomRepository, RoomCodeService roomCodeService, RoomService roomService, GameRepository gameRepository, GameService gameService) {
+    public RouletteController(TransactionRepository transactionRepository,AppUserService userService, AppUserRepository userRepository, RoomRepository roomRepository, RoomCodeService roomCodeService, RoomService roomService, GameRepository gameRepository, GameService gameService) {
         this.userService = userService;
+        this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
         this.roomService = roomService;
@@ -96,11 +100,18 @@ public class RouletteController {
     public ResponseEntity<Map<String, Object>> lockBets(@RequestBody LockBetRequest requestBody, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
         String idRoom = requestBody.getIdRoom();
+
+
+
+        Optional<Room> optionalRoom = roomRepository.findById(roomCodeService.decodeRoomId(idRoom));
+
+        Room room = optionalRoom.get(); 
+        
         for (BetRequest bet : requestBody.getBets()) {
             System.out.println("Type: " + bet.getBetType());
             System.out.println("Valeur: " + bet.getSelectionValue());
             System.out.println("Montant: " + bet.getAmount());
-            getRoulette(roomCodeService.decodeRoomId(idRoom)).betDeposit(new Bet(user, bet.getAmount(), bet.getBetType(), bet.getSelectionValue(), bet.getSelectionValue()));
+            getRoulette(roomCodeService.decodeRoomId(idRoom)).betDeposit(new Bet(user,room ,bet.getAmount(), bet.getBetType(), bet.getSelectionValue(), bet.getSelectionValue(),  transactionRepository));
             System.out.println(user.getBalance().toString());
         }
         userRepository.save(user);

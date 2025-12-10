@@ -1,11 +1,16 @@
 package com.example.CasYnoRoyale.roulette;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.example.CasYnoRoyale.database.AppUser;
+import com.example.CasYnoRoyale.database.Room;
+import com.example.CasYnoRoyale.database.Transaction;
+import com.example.CasYnoRoyale.repository.TransactionRepository;
 
 public class Bet {
 
@@ -31,19 +36,22 @@ public class Bet {
     AppUser user;
     BigDecimal betValue;
     boolean canceled = false;
-
+    boolean win = false;
     int externValueSelected; 
-
+    Room room;
+TransactionRepository transactionRepository;
     ArrayList<Integer> internValuesSelected; 
 
     BetType bt;
 
-    public Bet(AppUser user, BigDecimal betValue, BetType bt,Integer externValueSelected, Integer internValuesSelected) {
+    public Bet(AppUser user, Room room, BigDecimal betValue, BetType bt,Integer externValueSelected, Integer internValuesSelected, TransactionRepository transactionRepository) {
         this.user = user;
+        this.room = room;
         this.betValue = betValue;
         this.bt = bt;
         this.externValueSelected = externValueSelected;
         this.internValuesSelected = new ArrayList<Integer>(internValuesSelected);
+        this.transactionRepository =  transactionRepository;
 
         try {
             user.decreaseBalance(betValue);
@@ -148,11 +156,26 @@ public class Bet {
             default:
                 break;
         }
+        if(!win){
+            Transaction trans = new Transaction();
+            trans.setDate(LocalDateTime.now());
+            trans.setRoom(room);
+            trans.setUser(user);
+            trans.setMontant(betValue.negate());
+            transactionRepository.save(trans);
+
+        }
     }
 
     private void win(int multiplier) {
         BigDecimal gain = betValue.multiply(BigDecimal.valueOf(multiplier));
         user.increaseBalance(gain);
-
+        win = true;
+        Transaction trans = new Transaction();
+            trans.setDate(LocalDateTime.now());
+            trans.setRoom(room);
+            trans.setUser(user);
+            trans.setMontant(gain.subtract(betValue));
+            transactionRepository.save(trans);
     }
 }
