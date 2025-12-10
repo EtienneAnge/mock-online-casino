@@ -22,10 +22,6 @@ public class Deck {
     }
 
     public Card drawCard() {
-        /*if (cards.isEmpty()) {
-            initializeDeck();
-        }
-        return cards.remove(0);*/
         Collections.shuffle(this.cards);
         return cards.get(0);
     }

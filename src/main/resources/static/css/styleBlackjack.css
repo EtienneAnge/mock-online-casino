@@ -1,0 +1,159 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #1b5e20; /* Vert Tapis de Casino */
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Barre supérieure (Info Joueur, Solde, Quitter) */
+.top-bar {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Zone du Croupier */
+.dealer-area {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 15px;
+    min-width: 300px;
+    border: 2px solid #d4af37;
+    margin-bottom: 20px;
+}
+
+/* Zone des Joueurs (Disposition en ligne) */
+.players-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+}
+
+/* Siège individuel d'un joueur */
+.player-seat {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    min-width: 200px;
+    transition: all 0.3s ease;
+    position: relative;
+    border: 2px solid transparent;
+}
+
+/* Style de l'utilisateur courant */
+.player-seat.my-seat {
+    border-color: #ffca28;
+    background: rgba(255, 202, 40, 0.1);
+}
+
+/* Indication visuelle du tour actif */
+.player-seat.active-turn {
+    box-shadow: 0 0 15px #42a5f5;
+    border-color: #42a5f5;
+    transform: scale(1.05);
+}
+
+.cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    height: 100px;
+    margin: 10px 0;
+}
+
+.card-img {
+    height: 90px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s;
+}
+
+.card-img:hover {
+    transform: translateY(-5px);
+}
+
+/* Affichage du Timer */
+.timer-display {
+    font-size: 2em;
+    font-weight: bold;
+    color: #ffca28;
+    margin: 10px;
+    min-height: 40px;
+}
+
+/* État du jeu */
+#gameStatus {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.controls-area {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    padding: 15px 25px;
+    border-radius: 30px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+button {
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    font-size: 1em;
+    transition: filter 0.2s, transform 0.1s;
+}
+
+button:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+.btn-hit { background: #4caf50; color: white; }
+.btn-stand { background: #f44336; color: white; }
+.btn-bet { background: #ffca28; color: #1a1a1a; }
+.btn-exit { background-color: #546e7a; color: white; font-size: 0.9em; }
+
+/* Input de mise */
+#betInput {
+    width: 80px;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    text-align: center;
+    font-weight: bold;
+}

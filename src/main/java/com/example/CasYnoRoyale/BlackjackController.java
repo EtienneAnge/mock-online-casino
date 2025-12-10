@@ -14,11 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.CasYnoRoyale.database.AppUser;
 import com.example.CasYnoRoyale.database.Room;
+import com.example.CasYnoRoyale.model.blackjack.BetRequest;
 import com.example.CasYnoRoyale.model.blackjack.Blackjack;
+import com.example.CasYnoRoyale.model.blackjack.Seat;
 import com.example.CasYnoRoyale.repository.AppUserRepository;
-import com.example.CasYnoRoyale.repository.GameRepository;
-import com.example.CasYnoRoyale.repository.RoomRepository;
-import com.example.CasYnoRoyale.service.AppUserService;
 import com.example.CasYnoRoyale.service.GameService;
 import com.example.CasYnoRoyale.service.RoomCodeService;
 import com.example.CasYnoRoyale.service.RoomService;
@@ -28,42 +27,52 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class BlackjackController {
 
-    private final RoomRepository roomRepository;
-    private final RoomService roomService;
-    private final GameRepository gameRepository;
-    private final GameService gameService;
     private final AppUserRepository userRepository;
-    private final AppUserService userService;
+    private final RoomService roomService;
+    private final GameService gameService;
     private final RoomCodeService roomCodeService;
-    // Stockage de l'instance de jeu par ID de salle, comme dans RouletteController
-    private HashMap<Long, Blackjack> idTBlackjack = new HashMap<>();
+    
+    private final HashMap<Long, Blackjack> idTBlackjack = new HashMap<>();
 
-    public BlackjackController(AppUserService userService, AppUserRepository userRepository, RoomRepository roomRepository, RoomService roomService, RoomCodeService roomCodeService, GameRepository gameRepository, GameService gameService) {
-        this.userService = userService;
+    public BlackjackController(AppUserRepository userRepository, RoomService roomService, GameService gameService, RoomCodeService roomCodeService) {
         this.userRepository = userRepository;
-        this.roomRepository = roomRepository;
         this.roomService = roomService;
-        this.gameRepository = gameRepository;
         this.gameService = gameService;
         this.roomCodeService = roomCodeService;
     }
 
+    /**
+     * Récupère ou crée une instance de jeu Blackjack associée à une salle.
+     * Utilise {@code computeIfAbsent} pour garantir qu'une seule instance existe par salle.
+     *
+     * @param idRoom L'identifiant unique de la salle.
+     * @return L'instance de Blackjack correspondante.
+     */
     public Blackjack getBlackjack(Long idRoom) {
-        if (!idTBlackjack.containsKey(idRoom)) {
-            idTBlackjack.put(idRoom, new Blackjack());
-        }
-        return idTBlackjack.get(idRoom);
+        if (idRoom == null) return new Blackjack();
+        return idTBlackjack.computeIfAbsent(idRoom, k -> new Blackjack());
     }
 
-    // --- CORRECTION 1 : Méthode pour sauvegarder les gains ---
+    /**
+     * Sauvegarde l'état des utilisateurs (solde) en base de données à la fin d'une manche.
+     * Cette méthode est cruciale pour persister les gains ou les pertes.
+     *
+     * @param game L'instance de jeu terminée.
+     */
     private void saveGameResults(Blackjack game) {
-        // On parcourt tous les sièges et on sauvegarde les utilisateurs en BDD
-        // car leurs soldes ont été modifiés dans le modèle (Blackjack.java)
-        for (Blackjack.Seat seat : game.getSeats()) {
+        for (Seat seat : game.getSeats()) {
             userRepository.save(seat.user);
         }
     }
 
+    /**
+     * Point d'entrée principal pour accéder à la page du Blackjack.
+     * 
+     * @param model   Le modèle Spring pour passer des données à la vue (Thymeleaf).
+     * @param idRoom  Le code crypté de la salle (facultatif).
+     * @param session La session HTTP courante.
+     * @return Le nom du template HTML ("blackjack") ou une redirection.
+     */
     @GetMapping("/games/blackjack")
     public String blackjackPage(Model model, String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
@@ -86,6 +95,13 @@ public class BlackjackController {
         return "blackjack"; 
     }
 
+    /**
+     * API : Permet à un utilisateur de quitter la salle.
+     *
+     * @param idRoom  Le code crypté de la salle (reçu en texte brut).
+     * @param session La session HTTP courante.
+     * @return Réponse 200 OK si succès.
+     */
     @PostMapping("/api/game/blackjack/exit")
     public ResponseEntity<Void> exitBlackjack(@RequestBody String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
@@ -95,37 +111,46 @@ public class BlackjackController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * API : Gère le placement d'une mise.
+     * Vérifie le solde, débite le compte utilisateur et enregistre la mise dans le moteur de jeu.
+     *
+     * @param request Objet DTO contenant l'ID de la salle (code) et le montant.
+     * @param session La session HTTP courante.
+     * @return L'état du jeu (JSON) ou une erreur 400 si solde insuffisant/données invalides.
+     */
     @PostMapping("/api/game/blackjack/bet")
-    public ResponseEntity<Map<String, Object>> placeBet(@RequestBody Map<String, Object> payload, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> placeBet(@RequestBody BetRequest request, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        try {
-            //Long idRoom = Long.valueOf(payload.get("idRoom").toString());
-            int amount = Integer.parseInt(payload.get("amount").toString());
-            BigDecimal betAmount = BigDecimal.valueOf(amount);
+        if (request.getIdRoom() == null || request.getAmount() <= 0) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Données de mise invalides"));
+        }
 
-            Blackjack game = getBlackjack(roomCodeService.decodeRoomId(/*idRoom*/payload.get("idRoom").toString()));
-            
-            if (user.getBalance().compareTo(betAmount) >= 0) {
-                user.setBalance(user.getBalance().subtract(betAmount));
-                userRepository.save(user); 
-                
-                game.placeBet(user, amount);
-                session.setAttribute("user", user);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("message", "Solde insuffisant"));
-            }
+        Long safeId = roomCodeService.decodeRoomId(request.getIdRoom());
+        Blackjack game = getBlackjack(safeId);
+        BigDecimal betAmount = BigDecimal.valueOf(request.getAmount());
 
+        if (user.getBalance().compareTo(betAmount) >= 0) {
+            user.setBalance(user.getBalance().subtract(betAmount));
+            userRepository.save(user); 
+            game.placeBet(user, request.getAmount());
+            session.setAttribute("user", user);
             return ResponseEntity.ok(game.getGameState(user));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Solde insuffisant"));
         }
     }
 
+    /**
+     * API : Action "Tirer une carte" (Hit).
+     *
+     * @param idRoom  Le code crypté de la salle.
+     * @param session La session HTTP courante.
+     * @return L'état du jeu mis à jour.
+     */
     @PostMapping("/api/game/blackjack/hit")
     public ResponseEntity<Map<String, Object>> playerHit(@RequestBody String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
@@ -134,7 +159,6 @@ public class BlackjackController {
         Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         game.hit(user); 
         
-        // Si le hit provoque la fin de la partie (ex: tout le monde a bust ou fini), on sauvegarde
         if ("FINISHED".equals(game.getStatus())) {
             saveGameResults(game);
         }
@@ -142,6 +166,13 @@ public class BlackjackController {
         return ResponseEntity.ok(game.getGameState(user));
     }
 
+    /**
+     * API : Action "Rester" (Stand).
+     *
+     * @param idRoom  Le code crypté de la salle.
+     * @param session La session HTTP courante.
+     * @return L'état du jeu mis à jour.
+     */
     @PostMapping("/api/game/blackjack/stand")
     public ResponseEntity<Map<String, Object>> playerStand(@RequestBody String idRoom, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("user");
@@ -150,7 +181,6 @@ public class BlackjackController {
         Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         game.stand(user);
         
-        // CORRECTION 1 : Si le jeu est FINI, on sauvegarde tout le monde
         if ("FINISHED".equals(game.getStatus())) {
             saveGameResults(game);
         }
@@ -158,6 +188,14 @@ public class BlackjackController {
         return ResponseEntity.ok(game.getGameState(user));
     }
 
+    /**
+     * API : Rafraîchissement des données (Polling).
+     * Appelé périodiquement par le client pour synchroniser l'état du jeu.
+     *
+     * @param session La session HTTP courante.
+     * @param idRoom  Le code crypté de la salle.
+     * @return L'état complet du jeu ainsi que le solde à jour de l'utilisateur.
+     */
     @PostMapping("/api/game/blackjack/refreshData")
     public ResponseEntity<Map<String, Object>> refreshData(HttpSession session, @RequestBody String idRoom) {
         AppUser user = (AppUser) session.getAttribute("user");
@@ -165,17 +203,13 @@ public class BlackjackController {
 
         Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         
-        // CORRECTION 1 : Sécurité
-        // Si le timer a déclenché la fin de la partie sans qu'une action "hit/stand" ne soit appelée
-        // (ex: dernier joueur timeout ou logique auto), on sauvegarde ici aussi.
         if ("FINISHED".equals(game.getStatus())) {
             saveGameResults(game);
         }
 
         Map<String, Object> state = game.getGameState(user);
         
-        // On recharge depuis la BDD pour avoir le solde à jour (qui vient d'être sauvegardé juste au-dessus)
-        AppUser freshUser = userRepository.findByUsername(user.getUsername());//.orElse(user);
+        AppUser freshUser = userRepository.findByUsername(user.getUsername());
         state.put("userBalance", freshUser.getBalance());
         
         if(!freshUser.getBalance().equals(user.getBalance())) {
