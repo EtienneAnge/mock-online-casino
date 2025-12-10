@@ -3,6 +3,7 @@ package com.example.CasYnoRoyale;
 import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,9 @@ public class SignupController {
 
     @Autowired
     RoleRepository roleRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @GetMapping("/signup")
     public String signup(Model model) { 
@@ -60,8 +64,8 @@ public class SignupController {
         // Assigner le rôle trouvé à l'utilisateur
         formUser.setRole(defaultRole);
 
-        formUser.setBalance(new BigDecimal(100)); // Initialiser le solde à 0
-        formUser.setPassword(formUser.getPassword()); // mot de passe de l'utilisateur
+        formUser.setBalance(new BigDecimal(0)); // Initialiser le solde à 0
+        formUser.setPassword(passwordEncoder.encode(formUser.getPassword())); // mot de passe de l'utilisateur
         formUser.setName(formUser.getName()); //Nom de l'utilisateur
 
         //SAUVEGARDE EN BASE DE DONNÉES

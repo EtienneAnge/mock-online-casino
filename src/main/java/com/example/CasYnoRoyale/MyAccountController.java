@@ -3,6 +3,7 @@ package com.example.CasYnoRoyale;
 import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,9 @@ public class MyAccountController {
 
     @Autowired
     StatsService statsService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @GetMapping("/myaccount")
     public String myaccount() {
@@ -82,12 +86,12 @@ public class MyAccountController {
             return "redirect:/login";
         }
 
-        if (!user.getPassword().equals(oldPassword)) {
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             model.addFlashAttribute("error", "Mot de passe invalide");
             return "redirect:/myaccount";
         }
 
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
 
         userRepository.save(user);
 

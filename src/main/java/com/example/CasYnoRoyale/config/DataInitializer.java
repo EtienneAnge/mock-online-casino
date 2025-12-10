@@ -96,7 +96,7 @@ public class DataInitializer {
                 adminUser.setRole(adminRoleForUser);
                 adminUser.setName("admin");
                 adminUser.setUsername("admin");
-                adminUser.setPassword("admin");
+                adminUser.setPassword("$2a$10$gaErcQZtGyJBZloJkL0Ehu5Y/7pWdLFajNsn2e4m7WTzcGIBTuqem");
 
                 userRepository.save(adminUser);
               
@@ -105,7 +105,7 @@ public class DataInitializer {
                 System.out.println("User 'admin' déjà existant.");
             }
 
-            Game blackjack = gameRepository.findByLabel("BlackJack");
+            Game blackjack = gameRepository.findByLabel("Blackjack");
 
             Game roulette = gameRepository.findByLabel("Roulette");
             if (blackjack == null) {
