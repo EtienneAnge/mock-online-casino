@@ -15,9 +15,9 @@
             color: #fff;
             min-height: 100vh;
             display: flex;
-            flex-direction: column; /* AJOUT CLÉ : Empile les éléments verticalement */
-            justify-content: center; /* Centre verticalement si possible */
-            align-items: center; /* Centre horizontalement (l'axe transversal) */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             margin: 0;
         }
 
@@ -29,7 +29,6 @@
             align-items: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            /* Header fixe */
             position: fixed;
             width: 100%;
             top: 0;
@@ -60,11 +59,10 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
-            text-decoration: none; /* Important pour les liens <a> */
+            text-decoration: none;
             display: inline-block;
         }
 
-        /* Bouton Login (Style contour ici car inactif) */
         .btn-login {
             background: transparent;
             border: 2px solid #ffd700;
@@ -78,14 +76,12 @@
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
         }
 
-        /* Bouton Signup (Style plein ici car page active) */
         .btn-signup {
             background: linear-gradient(45deg, #ffd700, #ffed4e);
             color: #1a1a2e;
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
         }
 
-        /* Conteneur du formulaire */
         .signup-container {
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             padding: 3rem;
@@ -95,9 +91,8 @@
             width: 90%;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             
-            /* CENTRAGE */
             margin: auto; 
-            margin-top: 40px; /* Un peu d'air par rapport au header si l'écran est petit */
+            margin-top: 40px;
             margin-bottom: 40px;
             margin: auto; 
         }
@@ -171,7 +166,7 @@
             text-align: center;
             padding: 2rem;
             background: rgba(0, 0, 0, 0.5);
-            margin-top: auto; /* Pousse le footer tout en bas */
+            margin-top: auto;
             color: #888;
             width: 100%;
         }

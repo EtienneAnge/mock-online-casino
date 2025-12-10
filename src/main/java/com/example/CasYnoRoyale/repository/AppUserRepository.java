@@ -11,5 +11,4 @@ import com.example.CasYnoRoyale.database.AppUser;
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
     AppUser findByUsername(String username);
-    //AppUser findById(UUID idUser);
 }

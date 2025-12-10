@@ -7,32 +7,34 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/**
+ * Intercepteur de session permettant de limiter l'accès à certaines page en fonction de l'authentification de l'utilisateur.
+ */
 @Component
 public class SessionInterceptor implements HandlerInterceptor {
 
+    /**
+     * Intercepte les requêtes entrantes avant qu'elles n'atteignent le contrôleur.
+     * @param request   Requête HTTP entrante
+     * @param response  Réponse HTTP sortante
+     * @param handler   Gestionnaire de la requête
+     * @return          true si la requête doit continuer vers le contrôleur, false pour l'arreter
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        
-        // Récupérer la session existante (false = ne pas en créer une si elle n'existe pas)
+        //Recupère la session (false signifie que si la session n'existe pas, on ne la crée pas)
         HttpSession session = request.getSession(false); 
-        System.out.println(session);
-        // Vérifie si l'utilisateur est authentifié : la session existe ET l'attribut "user" est présent
+        //Verifie si l'utilisateur est authentifié
         boolean isAuthenticated = (session != null && session.getAttribute("user") != null);
 
-        // Si l'utilisateur n'est PAS authentifié (n'a pas l'objet "user" en session)
+        //Si l'utilisateur n'est pas connecté
         if (!isAuthenticated) {
-            
-            System.out.println("Interception : Non connecté. Redirection vers /login.");
-            
-            // Effectue la redirection vers la page de connexion
-            // request.getContextPath() garantit que le chemin absolu est correct (ex: /CasYnoRoyale/login)
+            //Redirection vers le login
             response.sendRedirect(request.getContextPath() + "/login");
-            
-            // Retourne false pour arrêter l'exécution du contrôleur initialement ciblé
+        
             return false;
         }
 
-        // Si l'utilisateur est authentifié (objet "user" trouvé), on laisse la requête continuer
         return true;
     }
 }
