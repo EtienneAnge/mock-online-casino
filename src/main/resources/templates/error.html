@@ -27,10 +27,9 @@
             padding: 3rem;
             max-width: 600px;
             width: 90%;
-            /* Effet de carte givrée/sombre */
             background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
-            border: 1px solid rgba(255, 215, 0, 0.2); /* Bordure dorée subtile */
+            border: 1px solid rgba(255, 215, 0, 0.2);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
@@ -38,7 +37,6 @@
             font-size: 6rem;
             font-weight: bold;
             margin-bottom: 0;
-            /* Dégradé doré sur le texte */
             background: linear-gradient(45deg, #ffd700, #ffed4e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -94,10 +92,8 @@
 <body>
 
     <div class="error-container">
-        <!-- Icône décorative (Carte joker ou dés) -->
         <div class="game-icon">🃏</div>
         
-        <!-- Code d'erreur (affiche le status s'il existe, sinon 404) -->
         <h1 th:text="${status} ?: '404'">404</h1>
         
         <h2>Rien ne va plus !</h2>

@@ -103,8 +103,8 @@
         }
 
         .nav-tabs .nav-link.active {
-            color: #ffd700 !important;
-            background-color: transparent !important;
+            color: #ffd700;
+            background-color: transparent ;
             border: none;
             border-bottom: 3px solid #ffd700;
             font-weight: bold;
@@ -129,7 +129,6 @@
             font-weight: 500;
         }
 
-        /* Bouton Crayon (Edit) */
         .btn-edit {
             background: transparent;
             border: 1px solid rgba(255, 215, 0, 0.5);
@@ -315,8 +314,8 @@
                         </div>
 
                         <form action="/myaccount/add-balance" method="post" style="margin:0;">
-                            <button type="submit" class="btn-add-credit" title="Ajouter 100 Cr au solde">
-                                <span style="font-size:1.2em; line-height:1;">+</span> 100 Cr
+                            <button type="submit" class="btn-add-credit" title="Ajouter 100 € au solde">
+                                <span style="font-size:1.2em; line-height:1;">+</span> 100 €
                             </button>
                         </form>
                     </div>
@@ -406,7 +405,6 @@
                     <h5 class="modal-title">Modifier mon mot de passe</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <!-- Action vers une nouvelle route spécifique -->
                 <form action="/myaccount/update-password" method="post">
                     <div class="modal-body">
                         <div class="mb-3">

@@ -18,65 +18,85 @@ import com.example.CasYnoRoyale.database.Role;
 
 import jakarta.servlet.http.HttpSession;
 
+/**
+ * Controller de la page d'inscription
+ */
 @Controller
 public class SignupController {
 
     @Autowired
-    AppUserRepository userRepository;
+    AppUserRepository userRepository;   //Le repository des utilisateurs
 
     @Autowired
-    RoleRepository roleRepository;
+    RoleRepository roleRepository;      //Le repository des roles
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    PasswordEncoder passwordEncoder;    //hasher de mot de passe
 
+    /**
+     * page d'inscription
+     * @param model Les attributs de redirection
+     * @return fichier à ouvrir
+     */
     @GetMapping("/signup")
     public String signup(Model model) { 
-        // Ajout d'un objet AppUser vide pour que Thymeleaf puisse construire le formulaire
+        //Ajout d'un objet AppUser vide pour que Thymeleaf puisse construire le formulaire
         model.addAttribute("appUser", new AppUser());
 
         return "signup";
     }
 
+    /**
+     * Gestion du formulaire d'inscription
+     * @param formUser  L'utilisateur soumis via le formulaire
+     * @param model     Les attributs de redirection
+     * @param session   La session HTTP
+     * @return          La redirection vers la page d'accueil ou d'inscription en cas d'erreur
+     */
     @PostMapping("/signup")
     public String postSignup(@ModelAttribute AppUser formUser,
             RedirectAttributes model,
             HttpSession session) {
 
-        //Verification qu'il n'y ait pas de doublon
-        //Recuperation de l'utilisateur avec le nom fourni
+        //Recuperation de l'utilisateur avec le nom fourni (verifie qu'il n'y ai pas de doublon)
         AppUser existingUser = userRepository.findByUsername(formUser.getUsername());
 
-        //L'utilisateur est recherché en bdd via son nom
+        //Si l'utilisateur existe deja
         if (existingUser != null) {
+            //Message d'erreur
             model.addFlashAttribute("error", "Ce nom d'utilisateur est déjà pris.");
+            //Redirection
             return "redirect:/signup";
         }
 
+        //Initialisation du role USER
         Role defaultRole = roleRepository.findByLabel("ROLE_USER"); 
 
+        //Si le role n'existe pas en bdd
         if (defaultRole == null) {
-            System.out.println("ERREUR CRITIQUE: Le rôle 'ROLE_USER' n'est pas initialisé en base de données.");
+            //Message d'erreur
             model.addFlashAttribute("error", "Erreur serveur: Rôle par défaut manquant.");
+            //redirection
             return "redirect:/signup";
         }
 
-        // Assigner le rôle trouvé à l'utilisateur
-        formUser.setRole(defaultRole);
+        //Initialisation des attributs du nouveau compte
+        formUser.setRole(defaultRole);                                          //Role USER
+        formUser.setBalance(new BigDecimal(0));                                 //Solde à 0
+        formUser.setPassword(passwordEncoder.encode(formUser.getPassword()));   //Mot de passe hashé
+        formUser.setName(formUser.getName());                                   //Nom de l'utilisateur
+        formUser.setUsername(formUser.getUsername());                           //Pseudo de l'utilisateur
 
-        formUser.setBalance(new BigDecimal(0)); // Initialiser le solde à 0
-        formUser.setPassword(passwordEncoder.encode(formUser.getPassword())); // mot de passe de l'utilisateur
-        formUser.setName(formUser.getName()); //Nom de l'utilisateur
-
-        //SAUVEGARDE EN BASE DE DONNÉES
+        //Sauvegarde en bdd et dans l'utilisateur de la session
         AppUser savedUser = userRepository.save(formUser);
 
-        // CONNEXION MANUELLE (Crée la session HTTP simple)
+        //Attribut l'utilisateur à la session
         session.setAttribute("user", savedUser); 
 
+        //Message de bienvenue
         model.addFlashAttribute("message", "Bienvenue " + savedUser.getUsername() + " !");
         
-        // Redirection vers l'accueil après auto-connexion
+        //Redirection
         return "redirect:/"; 
     }
 } 

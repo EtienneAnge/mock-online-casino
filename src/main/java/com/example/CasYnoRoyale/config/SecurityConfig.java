@@ -7,35 +7,44 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Classe qui permet de configurer la librairie Spring Security
+ */
 @Configuration
 public class SecurityConfig {
 
-    // 1. L'OUTIL DE HACHAGE (Le "Bean")
+    /**
+     * Fonction qui crée un bean PasswordEncoder utilisant bcrypt (permet de hacher un mot de passe)
+     * @return Le PasswordEncoder utilisant bcrypt
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 2. LA CONFIGURATION (Pour ne pas être bloqué)
+    /**
+     * Configurer les règles de sécurité HTTP
+     * @param http          L'objet HttpSecurity à configurer
+     * @return              La chaîne de filtres de sécurité configurée
+     * @throws Exception    En cas d'erreur de configuration
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Désactive la protection CSRF (pour simplifier le dév des formulaires)
+            //Désactive la protection CSRF (permet de gérer les formulaires soi-même)
             .csrf(csrf -> csrf.disable()) 
-            // Autorise TOUTES les requêtes (car tu as ton SessionInterceptor qui protège déjà)
+            //Autorise toutes les requetes car géré par SessionInterceptor
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll() // Explicite pour H2 (bonne pratique)
+                .requestMatchers("/h2-console/**").permitAll() // Explicite pour H2 (sinon innaccessible))
                 .anyRequest().permitAll() 
             )
 
-            // 3. --- C'EST ICI QU'IL MANQUAIT LE CODE ---
-            // Autoriser l'affichage dans des Frames (Obligatoire pour H2)
+            //Autorise l'affiche des pages (sinon h2-console non affiché car externe à une iframe)
             .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-            // -------------------------------------------
 
-            // Désactive le formulaire de login moche de Spring
+            //Désactive le formulaire par defaut de login de Spring
             .formLogin(form -> form.disable()) 
-            // Désactive le logout par défaut de Spring
+            //Désacrive le logout par defaut de Spring
             .logout(logout -> logout.disable()); 
 
         return http.build();

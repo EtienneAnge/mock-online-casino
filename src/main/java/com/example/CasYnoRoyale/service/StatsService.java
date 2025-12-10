@@ -14,15 +14,28 @@ import com.example.CasYnoRoyale.database.Transaction;
 import com.example.CasYnoRoyale.model.ChartDataDTO;
 import com.example.CasYnoRoyale.repository.TransactionRepository;
 
+/**
+ * Classe qui gere les transactions d'un utilisateur
+ */
 @Service
 public class StatsService {
-    private final TransactionRepository transactionRepository;
+    private final TransactionRepository transactionRepository;  //Le repository des transactions
 
+    /**
+     * Constructeur
+     * @param transactionRepository
+    */
     public StatsService(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
     }
 
-    public ChartDataDTO getEvolutvoidionData(AppUser user, Long gameId) {
+    /**
+     * Permet de renvoyer les transactions au format  : labels (dates), valeur des transactions, total des gains, total des pertes, total benefice
+     * @param user      Utilisateur à qui appartiennent les transactions
+     * @param gameId    Id du jeu (1 pour BlackJack, 2 pour Roulette, null pour les deux)
+     * @return
+     */
+    public ChartDataDTO getEvolutionData(AppUser user, Long gameId) {
         //Variables
         List<Transaction> transactions;                                 //Liste des transactions
 
