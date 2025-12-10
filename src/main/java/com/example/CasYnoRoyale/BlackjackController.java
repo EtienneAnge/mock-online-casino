@@ -1,6 +1,7 @@
 package com.example.CasYnoRoyale;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.CasYnoRoyale.database.AppUser;
 import com.example.CasYnoRoyale.database.Room;
+import com.example.CasYnoRoyale.database.Transaction;
 import com.example.CasYnoRoyale.model.blackjack.BetRequest;
 import com.example.CasYnoRoyale.model.blackjack.Blackjack;
 import com.example.CasYnoRoyale.model.blackjack.Seat;
 import com.example.CasYnoRoyale.repository.AppUserRepository;
+import com.example.CasYnoRoyale.repository.TransactionRepository;
 import com.example.CasYnoRoyale.service.GameService;
 import com.example.CasYnoRoyale.service.RoomCodeService;
 import com.example.CasYnoRoyale.service.RoomService;
@@ -31,14 +34,16 @@ public class BlackjackController {
     private final RoomService roomService;
     private final GameService gameService;
     private final RoomCodeService roomCodeService;
+    private final TransactionRepository transactionRepository;
     
     private final HashMap<Long, Blackjack> idTBlackjack = new HashMap<>();
 
-    public BlackjackController(AppUserRepository userRepository, RoomService roomService, GameService gameService, RoomCodeService roomCodeService) {
+    public BlackjackController(AppUserRepository userRepository, RoomService roomService, GameService gameService, RoomCodeService roomCodeService, TransactionRepository transactionRepository) {
         this.userRepository = userRepository;
         this.roomService = roomService;
         this.gameService = gameService;
         this.roomCodeService = roomCodeService;
+        this.transactionRepository = transactionRepository;
     }
 
     /**
@@ -54,22 +59,43 @@ public class BlackjackController {
     }
 
     /**
-     * Sauvegarde l'état des utilisateurs (solde) en base de données à la fin d'une manche.
-     * Cette méthode est cruciale pour persister les gains ou les pertes.
+     * Sauvegarde l'état des utilisateurs (solde) en base de données à la fin d'une manche
+     * et crée une transaction pour l'historique des gains/pertes.
      *
      * @param game L'instance de jeu terminée.
+     * @param idRoom @param game L'instance de jeu terminée.
      */
-    private void saveGameResults(Blackjack game) {
+    private void saveGameResults(Blackjack game, String idRoom) {
+        if (game.isResultsSaved()) return;
+
+        Room room = roomService.findRoomById(roomCodeService.decodeRoomId(idRoom));
         for (Seat seat : game.getSeats()) {
             userRepository.save(seat.user);
+
+            Transaction trans = new Transaction();
+            trans.setRoom(room);
+            trans.setUser(seat.user);
+            trans.setDate(LocalDateTime.now());
+
+            BigDecimal currentBalance = seat.user.getBalance();
+            BigDecimal startBalance = seat.initialBalance;
+            BigDecimal betAmount = BigDecimal.valueOf(seat.bet);
+
+            BigDecimal payout = currentBalance.subtract(startBalance);
+
+            BigDecimal netProfit = payout.subtract(betAmount);
+
+            trans.setMontant(netProfit);
+            transactionRepository.save(trans);
         }
+        game.setResultsSaved(true);
     }
 
     /**
      * Point d'entrée principal pour accéder à la page du Blackjack.
      * 
      * @param model   Le modèle Spring pour passer des données à la vue (Thymeleaf).
-     * @param idRoom  Le code crypté de la salle (facultatif).
+     * @param idRoom  Le code crypté de la salle.
      * @param session La session HTTP courante.
      * @return Le nom du template HTML ("blackjack") ou une redirection.
      */
@@ -98,7 +124,7 @@ public class BlackjackController {
     /**
      * API : Permet à un utilisateur de quitter la salle.
      *
-     * @param idRoom  Le code crypté de la salle (reçu en texte brut).
+     * @param idRoom  Le code crypté de la salle.
      * @param session La session HTTP courante.
      * @return Réponse 200 OK si succès.
      */
@@ -160,7 +186,7 @@ public class BlackjackController {
         game.hit(user); 
         
         if ("FINISHED".equals(game.getStatus())) {
-            saveGameResults(game);
+            saveGameResults(game, idRoom);
         }
 
         return ResponseEntity.ok(game.getGameState(user));
@@ -182,7 +208,7 @@ public class BlackjackController {
         game.stand(user);
         
         if ("FINISHED".equals(game.getStatus())) {
-            saveGameResults(game);
+            saveGameResults(game, idRoom);
         }
 
         return ResponseEntity.ok(game.getGameState(user));
@@ -204,7 +230,7 @@ public class BlackjackController {
         Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         
         if ("FINISHED".equals(game.getStatus())) {
-            saveGameResults(game);
+            saveGameResults(game, idRoom);
         }
 
         Map<String, Object> state = game.getGameState(user);
