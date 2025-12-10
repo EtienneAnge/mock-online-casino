@@ -18,6 +18,7 @@ public class Blackjack {
     private String gameStatus; 
     private long bettingEndTime; 
     private int currentPlayerIndex; 
+    private boolean resultsSaved = false;
 
     public Blackjack() {
         this.deck = new Deck();
@@ -33,6 +34,14 @@ public class Blackjack {
         return gameStatus;
     }
 
+    public boolean isResultsSaved() {
+        return resultsSaved;
+    }
+
+    public void setResultsSaved(boolean saved) {
+        this.resultsSaved = saved;
+    }
+
     /**
      * Initialise ou réinitialise la phase de paris.
      * Vide la table et lance le chronomètre.
@@ -41,6 +50,7 @@ public class Blackjack {
         this.gameStatus = "BETTING";
         this.seats.clear();
         this.dealerHand.clear();
+        this.resultsSaved = false;
         this.bettingEndTime = System.currentTimeMillis() + 20000;
     }
 
