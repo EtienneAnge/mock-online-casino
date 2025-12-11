@@ -159,7 +159,7 @@ TransactionRepository transactionRepository;
         if(!win){
             Transaction trans = new Transaction();
             trans.setDate(LocalDateTime.now());
-            trans.setRoom(room);
+            trans.setGame(room.getGame());
             trans.setUser(user);
             trans.setMontant(betValue.negate());
             transactionRepository.save(trans);
@@ -173,7 +173,7 @@ TransactionRepository transactionRepository;
         win = true;
         Transaction trans = new Transaction();
             trans.setDate(LocalDateTime.now());
-            trans.setRoom(room);
+            trans.setGame(room.getGame());
             trans.setUser(user);
             trans.setMontant(gain.subtract(betValue));
             transactionRepository.save(trans);

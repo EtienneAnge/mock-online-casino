@@ -26,6 +26,6 @@ public class Transaction {
     private AppUser user;
 
     @ManyToOne
-    @JoinColumn(name = "idRoom", nullable = false)
-    private Room room;
+    @JoinColumn(name = "idGame", nullable = false)
+    private Game game;
 }

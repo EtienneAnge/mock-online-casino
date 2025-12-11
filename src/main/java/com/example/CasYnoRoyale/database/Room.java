@@ -25,8 +25,5 @@ public class Room {
     @ManyToMany(mappedBy = "rooms")
     private List<AppUser> users;
 
-    @OneToMany(mappedBy = "room")
-    private List<Transaction> transactions;
-
     private Long idInstanceGame;
 }

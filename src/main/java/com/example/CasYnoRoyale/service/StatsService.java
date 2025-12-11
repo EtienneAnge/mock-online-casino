@@ -53,7 +53,7 @@ public class StatsService {
             transactions = transactionRepository.findByUserOrderByDateAsc(user);
         } else { //Sinon
             //Les transactions du jeu spécifié sont recupérées
-            transactions = transactionRepository.findByUserAndRoom_Game_IdGameOrderByDateAsc(user, gameId);
+            transactions = transactionRepository.findByUserAndGame_IdGameOrderByDateAsc(user, gameId);
         }
         
         //Format dates

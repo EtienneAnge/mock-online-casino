@@ -25,10 +25,4 @@ public class RoomCodeService {
         long[] ids = hashids.decode(cleanCode);
         return ids.length > 0 ? ids[0] : null;
     }
-    public static void main(String[] args){
-        RoomCodeService roomCodeService = new RoomCodeService();
-        System.out.println(roomCodeService.generateCode(147L));
-        System.out.println("L0V773");
-        System.out.println(roomCodeService.decodeRoomId("L0V773"));
-    }
 }

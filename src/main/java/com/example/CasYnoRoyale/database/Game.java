@@ -17,4 +17,8 @@ public class Game {
 
     @OneToMany(mappedBy = "game")
     private List<Room> rooms;
+
+    @OneToMany(mappedBy = "game")
+    private List<Transaction> transactions;
+
 }

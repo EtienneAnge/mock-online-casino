@@ -139,7 +139,7 @@ public class DataInitializer {
                     
                     //Alterner entre Roulette et Blackjack
                     boolean isRoulette = random.nextBoolean();
-                    Room selectedRoom = isRoulette ? roomRoulette : roomBlackjack;
+                    Game selectedGame = isRoulette ? roulette : blackjack;
                     
                     //Génération d'un montant aleatoire entre -50 et 100
                     double amountVal = -50 + (150 * random.nextDouble());
@@ -150,7 +150,7 @@ public class DataInitializer {
                     t.setMontant(amount);
                     t.setDate(LocalDateTime.now().minusDays(20 - i).plusHours(random.nextInt(12)));
                     t.setUser(adminUser);
-                    t.setRoom(selectedRoom);
+                    t.setGame(selectedGame);
                     
                     //Enregistrement
                     transactionRepository.save(t);

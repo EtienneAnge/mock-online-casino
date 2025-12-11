@@ -12,5 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     
     List<Transaction> findByUserOrderByDateAsc(AppUser user);
-    List<Transaction> findByUserAndRoom_Game_IdGameOrderByDateAsc(AppUser user, Long gameId);
+    List<Transaction> findByUserAndGame_IdGameOrderByDateAsc(AppUser user, Long gameId);
 }

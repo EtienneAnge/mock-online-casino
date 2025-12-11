@@ -73,7 +73,7 @@ public class BlackjackController {
             userRepository.save(seat.user);
 
             Transaction trans = new Transaction();
-            trans.setRoom(room);
+            trans.setGame(gameService.getBlackjack());
             trans.setUser(seat.user);
             trans.setDate(LocalDateTime.now());
 
