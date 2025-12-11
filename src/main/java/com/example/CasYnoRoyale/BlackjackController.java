@@ -63,12 +63,10 @@ public class BlackjackController {
      * et crée une transaction pour l'historique des gains/pertes.
      *
      * @param game L'instance de jeu terminée.
-     * @param idRoom @param game L'instance de jeu terminée.
      */
-    private void saveGameResults(Blackjack game, String idRoom) {
+    private void saveGameResults(Blackjack game) {
         if (game.isResultsSaved()) return;
 
-        Room room = roomService.findRoomById(roomCodeService.decodeRoomId(idRoom));
         for (Seat seat : game.getSeats()) {
             userRepository.save(seat.user);
 
@@ -186,7 +184,7 @@ public class BlackjackController {
         game.hit(user); 
         
         if ("FINISHED".equals(game.getStatus())) {
-            saveGameResults(game, idRoom);
+            saveGameResults(game);
         }
 
         return ResponseEntity.ok(game.getGameState(user));
@@ -208,7 +206,7 @@ public class BlackjackController {
         game.stand(user);
         
         if ("FINISHED".equals(game.getStatus())) {
-            saveGameResults(game, idRoom);
+            saveGameResults(game);
         }
 
         return ResponseEntity.ok(game.getGameState(user));
@@ -230,7 +228,7 @@ public class BlackjackController {
         Blackjack game = getBlackjack(roomCodeService.decodeRoomId(idRoom));
         
         if ("FINISHED".equals(game.getStatus())) {
-            saveGameResults(game, idRoom);
+            saveGameResults(game);
         }
 
         Map<String, Object> state = game.getGameState(user);
