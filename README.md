@@ -28,8 +28,8 @@ CasYnoRoyale est une plateforme de casino en ligne multiplayer où les utilisate
 
 - **Authentification sécurisée** : Système de login/signup avec gestion des sessions
 - **Jeux de casino** :
-  - ♠️ **Blackjack** : Jeu classique avec plusieurs sièges
-  - 🎡 **Roulette** : Jeu de roulette avec système de paris
+  - **Blackjack** : Jeu classique avec plusieurs sièges
+  - **Roulette** : Jeu de roulette avec système de paris
 - **Salles de jeu** : Créez et rejoignez des salles avec codes d'accès
 - **Gestion des paris** : Système de verrouillage des paris
 - **Compte utilisateur** : Suivi des statistiques et historique des transactions
