@@ -5,9 +5,6 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.CasYnoRoyale.RouletteController;
-import com.example.CasYnoRoyale.roulette.Roulette;
-
 @Entity
 @Data
 public class Room {
