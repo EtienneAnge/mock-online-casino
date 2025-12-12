@@ -105,3 +105,17 @@ L'architecture de CasYnoRoyale est basée sur le modèle MVC (Modèle-Vue-Contr�
 - **GET /api/user/stats** : Récupérer les statistiques de l'utilisateur connecté
 - **GET /api/user/transactions** : Récupérer l'historique des transactions de l'utilisateur connecté
 
+
+## Auto-Evaluation
+Fonctionnalités: 10 points
+l'application contient bien les fonctionnalités demandées : Oui 
+l'application permet d'insérer, mettre à jour, supprimer, chercher une entité en BDD : Oui, inserer transactions, supprimer room, chercher transactions...
+l'application permet de lier deux entités en BDD : Oui (voir MCD)
+l'application permet, pour une entité donnée, de créer un lien à une autre entité en BDD. : Oui
+l'application est jolie / utilise un framework CSS : Oui BootStrap
+Technique: 5 points
+l'application utilise le design pattern MVC pour chaque fonctionnalité : Oui
+les controlleurs utilisent les méthodes HTTP: GET,POST,PUT,DELETE : POST et GET mais pas PUT et DELETE
+chaque vue manipule des données transmises par son controlleur : Oui
+
+
