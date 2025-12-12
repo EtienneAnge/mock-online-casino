@@ -1,10 +1,11 @@
 package com.example.CasYnoRoyale.DTO;
 
-import com.example.CasYnoRoyale.roulette.BetRequest;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+
+import com.example.CasYnoRoyale.model.roulette.BetRequest;
 
 public class LockBetRequest {
     @Getter

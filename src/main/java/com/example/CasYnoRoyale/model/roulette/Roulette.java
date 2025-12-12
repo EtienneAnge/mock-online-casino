@@ -1,4 +1,4 @@
-package com.example.CasYnoRoyale.roulette;
+package com.example.CasYnoRoyale.model.roulette;
 
 
 import java.time.LocalDateTime;

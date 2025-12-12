@@ -1,4 +1,4 @@
-package com.example.CasYnoRoyale;
+package com.example.CasYnoRoyale.controller;
 
 import com.example.CasYnoRoyale.DTO.LockBetRequest;
 import com.example.CasYnoRoyale.service.*;
@@ -6,17 +6,17 @@ import com.example.CasYnoRoyale.service.*;
 import com.example.CasYnoRoyale.database.Game;
 import com.example.CasYnoRoyale.repository.GameRepository;
 import com.example.CasYnoRoyale.database.Room;
+import com.example.CasYnoRoyale.model.roulette.Bet;
+import com.example.CasYnoRoyale.model.roulette.BetRequest;
+import com.example.CasYnoRoyale.model.roulette.Roulette;
 import com.example.CasYnoRoyale.database.AppUser;
 import com.example.CasYnoRoyale.repository.RoomRepository;
 import com.example.CasYnoRoyale.repository.TransactionRepository;
 import com.example.CasYnoRoyale.repository.AppUserRepository;
-import com.example.CasYnoRoyale.roulette.Bet;
-import com.example.CasYnoRoyale.roulette.Roulette;
+
 import jakarta.servlet.http.HttpSession;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
-import com.example.CasYnoRoyale.roulette.BetRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;

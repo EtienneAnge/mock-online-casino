@@ -1,4 +1,4 @@
-package com.example.CasYnoRoyale;
+package com.example.CasYnoRoyale.controller;
 
 import java.math.BigDecimal;
 
