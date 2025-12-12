@@ -28,7 +28,7 @@
 
     <div class="controls-area" id="controlsBar"></div>
 
-    <script th:src="@{/scriptBlackjack.js}"></script>
+    <script th:src="@{/js/scriptBlackjack.js}"></script>
     <script th:inline="javascript">
         const serverRoomCode = /*[[${@roomCodeService.generateCode(room.idRoom)}]]*/ null;
         initGame(serverRoomCode);
