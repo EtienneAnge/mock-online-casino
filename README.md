@@ -1,121 +1,112 @@
-# CasYnoRoyale
+# mock-online-casino
 
-Une application web de casino en ligne construite avec **Spring Boot**, permettant aux utilisateurs de jouer à des jeux de hasard comme le Blackjack et la Roulette.
+A web-based online casino application built with **Spring Boot**, allowing users to play games of chance such as Blackjack and Roulette.
 
-## Table des matières
+## Table of Contents
 
-- [Vue d'ensemble](#vue-densemble)
-- [Fonctionnalités](#fonctionnalités)
-- [Prérequis](#prérequis)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Structure du projet](#structure-du-projet)
-- [Architecture](#architecture)
-- [Technologies utilisées](#technologies-utilisées)
-- [Utilisation](#utilisation)
-- [API Endpoints](#api-endpoints)
+* [Overview](#overview)
+* [Features](#features)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Configuration](#configuration)
+* [Project Structure](#project-structure)
+* [Architecture](#architecture)
+* [Technologies Used](#technologies-used)
+* [Usage](#usage)
+* [API Endpoints](#api-endpoints)
 
-## Vue d'ensemble
+## Overview
 
-CasYnoRoyale est une plateforme de casino en ligne multiplayer où les utilisateurs peuvent :
-- Créer un compte et se connecter
-- Rejoindre des salles de jeu
-- Jouer au Blackjack et à la Roulette
-- Suivre leurs statistiques et transactions
-- Gérer leur compte utilisateur
+mock-online-casino is a multiplayer online casino platform where users can:
 
-## Fonctionnalités
+* Create an account and log in
+* Join game rooms
+* Play Blackjack and Roulette
+* View their statistics and transactions
+* Manage their user account
 
-- **Authentification sécurisée** : Système de login/signup avec gestion des sessions
-- **Jeux de casino** :
-  - **Blackjack** : Jeu classique avec plusieurs sièges
-  - **Roulette** : Jeu de roulette avec système de paris
-- **Salles de jeu** : Créez et rejoignez des salles avec codes d'accès
-- **Gestion des paris** : Système de verrouillage des paris
-- **Compte utilisateur** : Suivi des statistiques et historique des transactions
-- **Base de données H2** : Base de données en mémoire pour le développement
-- **Sécurité** : Filtrage admin, intercepteurs de session
+## Features
 
-## Prérequis
+* **Secure Authentication**: Login/signup system with session management
+* **Casino Games**:
 
-- **Java 17** ou supérieur
-- **Maven 3.6+**
-- Un navigateur web moderne (Chrome, Firefox, Safari, Edge)
+  * **Blackjack**: Classic game with multiple seats
+  * **Roulette**: Roulette game with a betting system
+* **Game Rooms**: Create and join rooms with access codes
+* **Bet Management**: Betting lock system
+* **User Account**: Statistics tracking and transaction history
+* **H2 Database**: In-memory database for development
+* **Security**: Admin filtering, session interceptors
+
+## Requirements
+
+* **Java 17** or higher
+* **Maven 3.6+**
+* A modern web browser (Chrome, Firefox, Safari, Edge)
 
 ## Installation
 
-1. **Clonez le repository** :
+1. **Clone the repository**:
+
    ```bash
-   git clone https://github.com/CasYnoRoyal/CasYnoRoyale.git
-   cd CasYnoRoyale
+   git clone https://github.com/CasYnoRoyal/mock-online-casino.git
+   cd mock-online-casino
    ```
-2. **Construisez le projet** avec Maven :
+2. **Build the project** with Maven:
+
    ```bash
    mvn clean install
    ```
-3. **Lancez l'application** :
+3. **Start the application**:
+
    ```bash
    mvn spring-boot:run
    ```
-4. Ouvrez votre navigateur et allez à l'adresse `http://localhost:8080`
+4. Open your browser and go to `http://localhost:8080`
 
 ## Configuration
 
-- **Fichier de configuration** : `src/main/resources/application.properties`
-- **Port par défaut** : 8080 (modifiable dans le fichier de configuration)
-- **Base de données** : Configurée pour utiliser H2 en mémoire par défaut
+* **Configuration file**: `src/main/resources/application.properties`
+* **Default port**: 8080 (can be changed in the configuration file)
+* **Database**: Configured to use H2 in-memory database by default
 
-## Structure du projet
+## Project Structure
 
-- `src/main/java` : Contient le code source Java
-- `src/main/resources` : Contient les fichiers de configuration et les ressources statiques
-- `src/test/java` : Contient les tests unitaires et d'intégration
+* `src/main/java`: Contains the Java source code
+* `src/main/resources`: Contains configuration files and static resources
+* `src/test/java`: Contains unit and integration tests
 
 ## Architecture
 
-L'architecture de CasYnoRoyale est basée sur le modèle MVC (Modèle-Vue-Contrôleur) :
-- **Modèle** : Représente les données et la logique métier (ex. : entités JPA, services)
-- **Vue** : Représente l'interface utilisateur (ex. : fichiers HTML, CSS, JavaScript)
-- **Contrôleur** : Gère les requêtes HTTP et dirige vers les services appropriés
+The architecture of mock-online-casino is based on the MVC (Model-View-Controller) pattern:
 
-## Technologies utilisées
+* **Model**: Represents the data and business logic (e.g., JPA entities, services)
+* **View**: Represents the user interface (e.g., HTML, CSS, JavaScript files)
+* **Controller**: Handles HTTP requests and sends them to the appropriate services
 
-- **Spring Boot** : Framework principal pour construire l'application
-- **Spring Security** : Pour la gestion de la sécurité et des utilisateurs
-- **Spring Data JPA** : Pour l'accès et la gestion des données
-- **Thymeleaf** : Moteur de templates pour rendre les vues HTML
-- **Bootstrap** : Pour le design et la mise en page réactive
-- **H2 Database** : Base de données en mémoire pour le développement et les tests
+## Technologies Used
 
-## Utilisation
+* **Spring Boot**: Main framework used to build the application
+* **Spring Security**: Used for security and user management
+* **Spring Data JPA**: Used for data access and management
+* **Thymeleaf**: Template engine used to render HTML views
+* **Bootstrap**: Used for design and responsive layout
+* **H2 Database**: In-memory database for development and testing
 
-- **Créer un compte** : Remplissez le formulaire d'inscription avec un nom d'utilisateur, un email et un mot de passe
-- **Se connecter** : Utilisez vos identifiants pour vous connecter
-- **Rejoindre une salle** : Entrez le code d'accès de la salle pour y participer
-- **Jouer** : Sélectionnez un jeu (Blackjack ou Roulette) et commencez à jouer
-- **Consulter ses statistiques** : Allez dans la section "Mon compte" pour voir vos statistiques et transactions
+## Usage
+
+* **Create an account**: Fill in the signup form with a username, email, and password
+* **Log in**: Use your credentials to log in
+* **Join a room**: Enter the room access code to join
+* **Play**: Select a game (Blackjack or Roulette) and start playing
+* **View your statistics**: Go to the "My Account" section to view your statistics and transactions
 
 ## API Endpoints
 
-- **POST /api/auth/signup** : Inscription d'un nouvel utilisateur
-- **POST /api/auth/login** : Authentification d'un utilisateur
-- **GET /api/games/blackjack** : Récupérer les données du jeu Blackjack
-- **GET /api/games/roulette** : Récupérer les données du jeu Roulette
-- **POST /api/games/bet** : Placer un pari sur un jeu
-- **GET /api/user/stats** : Récupérer les statistiques de l'utilisateur connecté
-- **GET /api/user/transactions** : Récupérer l'historique des transactions de l'utilisateur connecté
-
-
-## Auto-Evaluation
-Fonctionnalités: 10 points
-l'application contient bien les fonctionnalités demandées : Oui 
-l'application permet d'insérer, mettre à jour, supprimer, chercher une entité en BDD : Oui, inserer transactions, supprimer room, chercher transactions...
-l'application permet de lier deux entités en BDD : Oui (voir MCD)
-l'application permet, pour une entité donnée, de créer un lien à une autre entité en BDD. : Oui
-l'application est jolie / utilise un framework CSS : Oui BootStrap
-Technique: 5 points
-l'application utilise le design pattern MVC pour chaque fonctionnalité : Oui
-les controlleurs utilisent les méthodes HTTP: GET,POST,PUT,DELETE : POST et GET mais pas PUT et DELETE
-chaque vue manipule des données transmises par son controlleur : Oui
-
-
+* **POST /api/auth/signup**: Register a new user
+* **POST /api/auth/login**: Authenticate a user
+* **GET /api/games/blackjack**: Get Blackjack game data
+* **GET /api/games/roulette**: Get Roulette game data
+* **POST /api/games/bet**: Place a bet on a game
+* **GET /api/user/stats**: Get the statistics of the logged-in user
+* **GET /api/user/transactions**: Get the transaction history of the logged-in user
